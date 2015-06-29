@@ -17,7 +17,13 @@ export const BoundingGroupNames = {
 export class GameLogic {
     constructor() {
         this.events = {
-            playerHitBlock: new Channel()
+            playerHitBlock: new Channel(),
+            shouldLoadNextZone: new Channel()
+        }
+
+        this.constants = {
+            //TODO(wg): Just gonna use 2 for now for testing, should be random at some point
+            seed: 2
         }
 
         this.state = {
@@ -75,7 +81,9 @@ export class GameCore {
             this._entities,
             this._updatables,
             this._renderables
-        ].concat(this._boundingGroups.values)
+        ].concat(
+            [for (group of this._boundingGroups.values()) group]
+        )
         .forEach((set) => {
             set.delete(entity);
         })

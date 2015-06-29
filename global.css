@@ -1,3 +1,7 @@
 body {
     background-color: hsl(0, 0%, 90%);
 }
+
+.main-handle {
+    text-align: center;
+}

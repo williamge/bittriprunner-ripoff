@@ -31,7 +31,7 @@ export default class Player extends Entity {
 
         this.acceleration = new vec2({
             x: 0,
-            y: -550
+            y: -750
         })
 
         this.keyState = keyState;
@@ -67,7 +67,7 @@ export default class Player extends Entity {
             this.velocity.y = 0;
 
             if (this.keyState.get('up_arrow')) {
-                this.velocity.y = 350;
+                this.velocity.y = 400;
             }
         } else {
             this.velocity.y += this.acceleration.y * (delta/1000);
