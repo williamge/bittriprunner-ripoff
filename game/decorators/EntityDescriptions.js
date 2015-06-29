@@ -13,6 +13,8 @@ export function Renderable(target) {
     target[Symbols.renderable] = true;
 }
 
-export function Boundable(target) {
-    target[Symbols.boundable] = true;
+export function Boundable(boundableGroup) {
+    return function(target) {
+        target[Symbols.boundable] = boundableGroup;
+    }
 }

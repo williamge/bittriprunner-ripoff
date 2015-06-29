@@ -2,12 +2,13 @@ import Entity from './EntityInterface'
 
 import {Vector2d as vec2, Size2d as size2} from '../lib/Vector2d'
 
+import {BoundingGroupNames} from './core'
+
 import BoundingBox from '../lib/BoundingBox'
 
-import BoundingGroup from './decorators/BoundingGroup'
 import {Updatable, Boundable, Renderable} from './decorators/EntityDescriptions'
 
-@Boundable
+@Boundable(BoundingGroupNames.Blocks)
 @Renderable
 @Updatable
 export class Obstacle extends Entity {
@@ -25,11 +26,16 @@ export class Obstacle extends Entity {
         this._colour = `hsl(${Math.random() * 360}, 30%, 50%)`;
     }
 
-    @BoundingGroup('block')
     getBoundingBox() {
         return new BoundingBox(
-            this.position.copy(),
-            this.position.add(this.size)
+            new vec2({
+                x: this.position.x,
+                y: this.position.y + this.size.height
+            }),
+            new vec2({
+                x: this.position.x + this.size.width,
+                y: this.position.y
+            })
         )
     }
 

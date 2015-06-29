@@ -5,7 +5,7 @@ import Player from './game/Player'
 
 import {Obstacle, loadObstaclesFromJson} from './game/Obstacle'
 
-import {GameCore, GameLoop} from './game/core'
+import {GameLogic, GameCore, GameLoop} from './game/core'
 
 import KeyState from './game/KeyState'
 import Input from './Input'
@@ -42,7 +42,9 @@ export default function() {
         }
     }
 
-    let game = new GameCore(mainContext, camera);
+    let gameLogic = new GameLogic();
+
+    let game = new GameCore(mainContext, camera, gameLogic);
 
     let player = new Player(game.worldInfo, keyState);
     camera.player = player;
@@ -55,6 +57,14 @@ export default function() {
     }
 
     let loop = new GameLoop(game);
+
+    gameLogic.events.playerHitBlock.subscribe((data) => {
+        loop.pauseLoop();
+        gameLogic.state.gameRunning = false;
+        alert("Game Over");
+    })
+
+    gameLogic.state.gameRunning = true;
     loop.startLoop();
 
 }

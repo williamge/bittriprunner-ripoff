@@ -1,72 +1,111 @@
 
 import {Symbols as EntitySymbols} from './decorators/EntityDescriptions'
 
+import Channel from '../lib/Channel'
+
 function now() {
     let _nowDate = new Date()
     return _nowDate.getTime()
 }
 
+export const BoundingGroupNames = {
+    Player: Symbol('Player'),
+    Blocks: Symbol('Blocks'),
+    UNKNOWN: Symbol('UNKNOWN')
+}
+
+export class GameLogic {
+    constructor() {
+        this.events = {
+            playerHitBlock: new Channel()
+        }
+
+        this.state = {
+            gameRunning: false
+        }
+    }
+}
+
 export class GameCore {
-    constructor(context, camera) {
+    constructor(context, camera, gameLogic) {
         this.context = context;
 
-        this._entities = [];
-        this._updatables = [];
-        this._renderables = [];
+        this._entities = new Set();
+        this._updatables = new Set();
+        this._renderables = new Set();
 
-        this._boundingGroups = {
-            player: [],
-            blocks: [],
-            unknown: []
+        this._boundingGroups = new Map();
+
+        for (let name of Object.keys(BoundingGroupNames)) {
+            this._boundingGroups.set(BoundingGroupNames[name], new Set());
         }
 
         this.camera = camera;
+        this.gameLogic = gameLogic;
 
         this._transformPointToRender = (position, size) => {
-            return {
+            let renderCoordinates = {
                 y: this.worldInfo.height - size.height - position.y,
                 x: position.x
-            }
+            };
+            this.context.translate(renderCoordinates.x,renderCoordinates.y);
         }
     }
 
     addEntity(entity) {
-        this._entities.push(entity);
+        this._entities.add(entity);
         if (entity.constructor[EntitySymbols.updatable]) {
-            this._updatables.push(entity)
+            this._updatables.add(entity)
         }
         if (entity.constructor[EntitySymbols.renderable]) {
-            this._renderables.push(entity)
+            this._renderables.add(entity)
         }
         if (entity.constructor[EntitySymbols.boundable]) {
-            if (entity.getBoundingBox.boundingGroup != null) {
-                if (this._boundingGroups[entity.getBoundingBox.boundingGroup] != null){
-                    this._boundingGroups[entity.getBoundingBox.boundingGroup].push(entity);
-                } else {
-                    console.warn(`Bounding group '${entity.getBoundingBox.boundingGroup}' is not defined for this game`);
-                }
+            if ( this._boundingGroups.has(entity.constructor[EntitySymbols.boundable]) ){
+                this._boundingGroups.get(entity.constructor[EntitySymbols.boundable]).add(entity);
             } else {
-                console.warn(`No bounding group defined for entity '${entity}'. It will be added to the unknown group instead.`);
-                this._boundingGroups.unknown.push(entity);
+                console.warn(`Bounding group '${entity.getBoundingBox.boundingGroup}' is not defined for this game`);
             }
         }
         return this;
     }
 
-    getTransformer() {
-        return (position, size) => {
-            return {
-                y: this.worldInfo.height - size.height - position.y,
-                x: position.x
-            }
-        }
+    removeEntity(entity) {
+        [
+            this._entities,
+            this._updatables,
+            this._renderables
+        ].concat(this._boundingGroups.values)
+        .forEach((set) => {
+            set.delete(entity);
+        })
     }
 
-    getScreenTransform() {
-        return (position, size) => {
-            let renderCoordinates = this.getTransformer()(position, size);
-            this.context.translate(renderCoordinates.x,renderCoordinates.y)
-        }
+    update(delta) {
+        this._updatables.forEach((updatable) => {
+            if (this.gameLogic.state.gameRunning) {
+                updatable.update(delta, this._boundingGroups, this.gameLogic);
+            }
+        });
+
+        this.camera.update(delta);
+    }
+
+    render(globalTime) {
+        this.context.save()
+
+        this.context.fillStyle = 'hsl(0, 0%, 99%)'
+        this.context.fillRect(0, 0, this.context.canvas.width, this.context.canvas.height)
+
+        this.context.translate(this.camera.position.x, this.camera.position.y);
+
+        this._renderables.forEach((renderable) => {
+            this.context.save()
+            renderable.render(this.context, globalTime, this._transformPointToRender)
+            this.context.restore()
+        })
+
+        this.context.restore()
     }
 
     get worldInfo() {
@@ -92,31 +131,13 @@ export class GameLoop {
         }
         let _now = now()
         let delta = _now - this._lastUpdateTime
-        this._lastUpdateTime = _now
+        this._lastUpdateTime = _now;
 
-        this.gameCore._updatables.forEach((updatable) => {
-            updatable.update(delta);
-        });
-
-        this.gameCore.camera.update(delta);
-
+        this.gameCore.update(delta);
     }
 
     render() {
-        this.gameCore.context.save()
-
-        this.gameCore.context.fillStyle = 'hsl(0, 0%, 99%)'
-        this.gameCore.context.fillRect(0, 0, this.gameCore.context.canvas.width, this.gameCore.context.canvas.height)
-
-        this.gameCore.context.translate(this.gameCore.camera.position.x, this.gameCore.camera.position.y);
-
-        this.gameCore._renderables.forEach((renderable) => {
-            this.gameCore.context.save()
-            renderable.render(this.gameCore.context, this._lastUpdateTime, this.gameCore.getScreenTransform())
-            this.gameCore.context.restore()
-        })
-
-        this.gameCore.context.restore()
+        this.gameCore.render(this._lastUpdateTime);
     }
 
     startLoop() {

@@ -1,7 +1,7 @@
 
 {
   "name": "bit.trip.runner-ripoff",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "A bad ripoff-ish of the game Bit.Trip Runner",
   "private": true,
   "main": "bundle.js",
