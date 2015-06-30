@@ -40,4 +40,22 @@ export default class Entity {
          * when rendered line up with the canvas coordinates. 
          */
     }
+
+    /**
+     * Returns an axis-aligned bounding box for the object, up to the inheriting class to decide
+     * how that should be made. This can be called at any time after initialization, so beware.
+     * @return {BoundingBox} BoundingBox instance for the instance
+     */
+    getBoundingBox() {
+        return new BoundingBox(
+            new vec2({
+                x: this.position.x,
+                y: this.position.y + this.size.height
+            }),
+            new vec2({
+                x: this.position.x + this.size.width,
+                y: this.position.y
+            })
+        )
+    }
 }

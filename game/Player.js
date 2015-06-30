@@ -8,10 +8,18 @@ import BoundingBox from '../lib/BoundingBox'
 
 import {Updatable, Boundable, Renderable} from './decorators/EntityDescriptions'
 
+/**
+ * Represents a player in the game world which the user controls.
+ */
 @Boundable(BoundingGroupNames.Player)
 @Renderable
 @Updatable
 export default class Player extends Entity {
+    /**
+     * Player constructor
+     * @param  {WorldInfo} worldInfo WorldInfo instance for the game world that the instance will be added to
+     * @param  {KeyState} keyState  KeyState instance which the player intance will use for the current key-state
+     */
     constructor(worldInfo, keyState) {
         super();
         this.size = new size2({
@@ -50,38 +58,44 @@ export default class Player extends Entity {
         )
     }
 
+    /**
+     * Checks the collisions for the player instance, and will signal on the GameLogic instance if the player has collided 
+     * with an obstacle. If the player has collided with an obstacle then this function returns true immediately after triggering an event on GameLogic.
+     */
     _checkCollisions(BoundingMap, gameLogic) {
         for (let entity of BoundingMap.get(BoundingGroupNames.Blocks)) {
             if (BoundingBox.isCollision(this.getBoundingBox(), entity.getBoundingBox())) {
                 gameLogic.events.playerHitBlock.publish();
-                return;
+                return true;
             }
         }
+
+        return false;
     }
 
     update(delta, BoundingMap, gameLogic) {
 
-        this._checkCollisions(BoundingMap, gameLogic);
+        if (!this._checkCollisions(BoundingMap, gameLogic)) {
+            if (this.position.y <= 0) {
+                this.velocity.y = 0;
 
-        if (this.position.y <= 0) {
-            this.velocity.y = 0;
-
-            if (this.keyState.get('up_arrow')) {
-                this.velocity.y = 400;
+                if (this.keyState.get('up_arrow')) {
+                    this.velocity.y = 400;
+                }
+            } else {
+                this.velocity.y += this.acceleration.y * (delta/1000);
             }
-        } else {
-            this.velocity.y += this.acceleration.y * (delta/1000);
+
+            this.position.x += this.velocity.x * (delta/1000);
+            this.position.y += this.velocity.y * (delta/1000);
         }
-
-        this.position.x += this.velocity.x * (delta/1000);
-        this.position.y += this.velocity.y * (delta/1000);
-
     }
 
     render(context, globalTime, applyScreenTransform) {
         let ctxWidth = context.canvas.width
         let ctxHeight = context.canvas.height
 
+        //Changing colour over time
         let hue = (Math.sin((globalTime / 6000) * Math.PI) + 1) * 360
 
         applyScreenTransform(this.position, this.size);
