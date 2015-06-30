@@ -21,12 +21,12 @@ export default function() {
     mainCanvas.width = 640
     mainCanvas.height = 240 
 
+    let mainContext = mainCanvas.getContext('2d')
+    mainHandle.appendChild(mainCanvas)
+
     const START_TO_OBSTACLES = (mainCanvas.width * (3/4));
     const PLAYER_DISTANCE_FROM_CAMERA = (mainContext.canvas.width / 4);
 
-    
-    let mainContext = mainCanvas.getContext('2d')
-    mainHandle.appendChild(mainCanvas)
 
     //Holds the state of keypresses for the application (ends up being the browser window in this case)
     let keyState = new KeyState();
