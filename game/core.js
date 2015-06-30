@@ -83,15 +83,15 @@ export class GameCore {
 
     addEntity(entity) {
         this._entities.add(entity);
-        if (entity.constructor[EntitySymbols.updatable]) {
+        if (entity[EntitySymbols.updatable]) {
             this._updatables.add(entity)
         }
-        if (entity.constructor[EntitySymbols.renderable]) {
+        if (entity[EntitySymbols.renderable]) {
             this._renderables.add(entity)
         }
-        if (entity.constructor[EntitySymbols.boundable]) {
-            if ( this._boundingGroups.has(entity.constructor[EntitySymbols.boundable]) ){
-                this._boundingGroups.get(entity.constructor[EntitySymbols.boundable]).add(entity);
+        if (entity[EntitySymbols.boundable]) {
+            if ( this._boundingGroups.has(entity[EntitySymbols.boundable]) ){
+                this._boundingGroups.get(entity[EntitySymbols.boundable]).add(entity);
             } else {
                 console.warn(`Bounding group '${entity.getBoundingBox.boundingGroup}' is not defined for this game`);
             }

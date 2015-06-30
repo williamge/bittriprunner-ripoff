@@ -9,14 +9,14 @@ export const Symbols = {
  * Marks a class as being able to be updated in a GameCore instance
  */
 export function Updatable(target) {
-    target[Symbols.updatable] = true;
+    target.prototype[Symbols.updatable] = true;
 }
 
 /**
  * Marks a class as being able to be renderable in a GameCore instance
  */
 export function Renderable(target) {
-    target[Symbols.renderable] = true;
+    target.prototype[Symbols.renderable] = true;
 }
 
 /**
@@ -26,6 +26,6 @@ export function Renderable(target) {
  */
 export function Boundable(boundableGroup) {
     return function(target) {
-        target[Symbols.boundable] = boundableGroup;
+        target.prototype[Symbols.boundable] = boundableGroup;
     }
 }
