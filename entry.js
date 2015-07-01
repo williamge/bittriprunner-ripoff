@@ -7,6 +7,37 @@ import * as polyfill from 'babel/polyfill'
 import {
     debugStage,
     play
-} from './main';
+} from './src/main';
 
-play();
+
+let urlSplit = window.location.href.split('#');
+
+let cvars = {
+    debugMode: {
+        enabled: false,
+        stage: {
+            enabled: false,
+            number: -1
+        }
+    }
+};
+
+if (urlSplit.length > 1) {
+    let params = urlSplit[1].split(',');
+
+    for (let parameter of params) {
+        if (parameter.indexOf('debug_stage') != -1) {
+            cvars.debugMode.enabled = true;
+            cvars.debugMode.stage.enabled = true;
+            cvars.debugMode.stage.number = Number(parameter.split('=')[1]);
+        }
+    }
+}
+
+if (!cvars.debugMode.enabled) {
+    play();
+} else {
+    if (cvars.debugMode.stage.enabled) {
+        debugStage(cvars.debugMode.stage.number);
+    }
+}

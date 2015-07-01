@@ -6,6 +6,7 @@ import Player from './game/Player'
 import {Obstacle, loadObstaclesFromJson} from './game/Obstacle'
 
 import {GameLogic, GameCore, GameLoop} from './game/core'
+import Camera from './game/Camera'
 
 import KeyState from './game/KeyState'
 import Input from './Input'
@@ -35,35 +36,39 @@ let createMainCanvas = function() {
     };
 }
 
-function *getStage() {
-    let stages = [
+//Helper functions for adding or removing obstacle entities
+//TODO(wg): clean this up, put in to a nicer set of functions
+let obstacleHelpers = function(game) {
+
+    const stages = [
         level1,
         level2
     ];
 
-    let i = 0;
+    function *getStage() {
 
-    for(;;) {
-        if (++i == stages.length) {
-            i = 0;
+        let i = 0;
+
+        for(;;) {
+            if (++i == stages.length) {
+                i = 0;
+            }
+            yield stages[i];
         }
-        yield stages[i];
     }
-}
 
-//Helper functions for adding or removing obstacle entities
-//TODO(wg): clean this up, put in to a nicer set of functions
-let obstacleHelpers = function(game) {
     let currentObstacles = [];
     let nextObstacles = [];
 
-    let stageIter = getStage();
+    const stageIter = getStage();
 
     /**
      * Loads obstacles for one screen length, and places them one screen length away from the camera position
      */
-    function loadObstacles(offset) {
-        for (let obstacle of loadObstaclesFromJson(game.worldInfo, stageIter.next().value, offset)) {
+    function loadObstacles(offset, optionalStageIndex) {
+        let stage = optionalStageIndex != null ? stages[optionalStageIndex] : stageIter.next().value
+
+        for (let obstacle of loadObstaclesFromJson(game.worldInfo, stage, offset)) {
             game.addEntity(obstacle);
             nextObstacles.push(obstacle);
         }
@@ -102,45 +107,41 @@ export function play() {
     let inputHandler = new Input(keyState);
     inputHandler.listenTo(window);
 
-    //TODO(wg): make this much less messy
-    let camera = {
-        position: {
-            x: 0, 
-            y: 0
-        },
-        blockPosition: {
-            left: START_TO_OBSTACLES,
-            toLoadLeft: START_TO_OBSTACLES + mainCanvas.width,
-            _lastBlockPosition: START_TO_OBSTACLES + 1
-        },
-        player: null,
-        gameLogic: null,
-        update: function() {
-            //Pegging the camera's position to the player, but only on the x-axis so we can see
-            //the player jump properly
-            this.position.x = - (this.player.position.x - PLAYER_DISTANCE_FROM_CAMERA);
+    let gameLogic = new GameLogic();
+    let player = new Player(keyState);
 
-            this.blockPosition.left = this.player.position.x - PLAYER_DISTANCE_FROM_CAMERA;
-            this.blockPosition.toLoadLeft = this.blockPosition.left + mainCanvas.width;
-
-            let blockRelativeXPosition = this.blockPosition.left % mainCanvas.width;
-
-            if (blockRelativeXPosition < this._lastBlockPosition && this.blockPosition.left > START_TO_OBSTACLES + mainCanvas.width) {
-                this.gameLogic.events.shouldLoadNextZone.publish();
+    let camera = (function() {
+        class GameCamera extends Camera {
+            constructor() {
+                super();
+                this.blockPosition = {
+                    left: START_TO_OBSTACLES,
+                    toLoadLeft: START_TO_OBSTACLES + mainCanvas.width,
+                    _lastBlockPosition: START_TO_OBSTACLES + 1
+                };
             }
 
-            this._lastBlockPosition = blockRelativeXPosition;
-        }
-    }
+            update(delta) {
+                //Pegging the camera's position to the player, but only on the x-axis so we can see
+                //the player jump properly
+                this.position.x = - (player.position.x - PLAYER_DISTANCE_FROM_CAMERA);
 
-    let gameLogic = new GameLogic();
-    camera.gameLogic = gameLogic;
+                this.blockPosition.left = player.position.x - PLAYER_DISTANCE_FROM_CAMERA;
+                this.blockPosition.toLoadLeft = this.blockPosition.left + mainCanvas.width;
+
+                let blockRelativeXPosition = this.blockPosition.left % mainCanvas.width;
+
+                if (blockRelativeXPosition < this._lastBlockPosition && this.blockPosition.left > START_TO_OBSTACLES + mainCanvas.width) {
+                    gameLogic.events.shouldLoadNextZone.publish();
+                }
+
+                this._lastBlockPosition = blockRelativeXPosition;
+            }
+        }
+        return new GameCamera()
+    })();
 
     let game = new GameCore(mainContext, camera, gameLogic);
-
-    //Player entity
-    let player = new Player(game.worldInfo, keyState);
-    camera.player = player;
 
     game.addEntity(player);
 
@@ -169,7 +170,7 @@ export function play() {
 
 }
 
-export function debugStage() {
+export function debugStage(stage) {
 
     let {
         mainCanvas,
@@ -178,23 +179,9 @@ export function debugStage() {
         PLAYER_DISTANCE_FROM_CAMERA
     } = createMainCanvas();
 
-    //TODO(wg): make this much less messy
-    let camera = {
-        position: {
-            x: 0, 
-            y: 0
-        },
-        blockPosition: {
-            left: START_TO_OBSTACLES,
-            toLoadLeft: 0,
-            _lastBlockPosition: START_TO_OBSTACLES + 1
-        },
-        update: function() {
-        }
-    }
+    let camera = new Camera();
 
     let gameLogic = new GameLogic();
-    camera.gameLogic = gameLogic;
 
     let game = new GameCore(mainContext, camera, gameLogic);
 
@@ -202,7 +189,7 @@ export function debugStage() {
 
     //Have to load the initial obstacles for the current screen, since the auto-loading
     //functionality works on loading the next (off-camera) screen
-    loadObstacles(0);
+    loadObstacles(0, stage);
 
     let loop = new GameLoop(game);
 

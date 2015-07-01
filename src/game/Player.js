@@ -17,10 +17,9 @@ import {Updatable, Boundable, Renderable} from './decorators/EntityDescriptions'
 export default class Player extends Entity {
     /**
      * Player constructor
-     * @param  {WorldInfo} worldInfo WorldInfo instance for the game world that the instance will be added to
      * @param  {KeyState} keyState  KeyState instance which the player intance will use for the current key-state
      */
-    constructor(worldInfo, keyState) {
+    constructor(keyState) {
         super();
         this.size = new size2({
             width: 10,

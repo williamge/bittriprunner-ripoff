@@ -17,11 +17,10 @@ import {Updatable, Boundable, Renderable} from './decorators/EntityDescriptions'
 export class Obstacle extends Entity {
     /**
      * Obstacle constructor
-     * @param  {WorldInfo} worldInfo Info for the game world this instance will be added to
      * @param  {Size2d} size      Initial size for the obstacle
      * @param  {Vector2d} position  Initial position for the obstacle
      */
-    constructor(worldInfo, size, position) {
+    constructor(size, position) {
         super();
         this.size = new size2({
             width: size.width,
@@ -69,7 +68,7 @@ export class Obstacle extends Entity {
  */
 export function *loadObstaclesFromJson(worldInfo, JsonList, offsetX) {
     for (let obstacleDef of JsonList) {
-        yield new Obstacle(worldInfo, obstacleDef.size, new vec2({
+        yield new Obstacle(obstacleDef.size, new vec2({
             x: obstacleDef.position.x + offsetX,
             y: obstacleDef.position.y
         }));
