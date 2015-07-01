@@ -4,6 +4,9 @@
  */
 
 import * as polyfill from 'babel/polyfill'
-import main from './main';
+import {
+    debugStage,
+    play
+} from './main';
 
-main();
+play();

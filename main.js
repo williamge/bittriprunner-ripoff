@@ -11,9 +11,9 @@ import KeyState from './game/KeyState'
 import Input from './Input'
 
 import level1 from './data/level1'
+import level2 from './data/level2'
 
-export default function() {
-
+let createMainCanvas = function() {
     let mainHandle = document.getElementById('main-handle')
 
     let mainCanvas = document.createElement('canvas')
@@ -24,9 +24,76 @@ export default function() {
     let mainContext = mainCanvas.getContext('2d')
     mainHandle.appendChild(mainCanvas)
 
-    const START_TO_OBSTACLES = (mainCanvas.width * (3/4));
+    const START_TO_OBSTACLES = 0;
     const PLAYER_DISTANCE_FROM_CAMERA = (mainContext.canvas.width / 4);
 
+    return {
+        mainCanvas,
+        mainContext,
+        START_TO_OBSTACLES,
+        PLAYER_DISTANCE_FROM_CAMERA
+    };
+}
+
+function *getStage() {
+    let stages = [
+        level1,
+        level2
+    ];
+
+    let i = 0;
+
+    for(;;) {
+        if (++i == stages.length) {
+            i = 0;
+        }
+        yield stages[i];
+    }
+}
+
+//Helper functions for adding or removing obstacle entities
+//TODO(wg): clean this up, put in to a nicer set of functions
+let obstacleHelpers = function(game) {
+    let currentObstacles = [];
+    let nextObstacles = [];
+
+    let stageIter = getStage();
+
+    /**
+     * Loads obstacles for one screen length, and places them one screen length away from the camera position
+     */
+    function loadObstacles(offset) {
+        for (let obstacle of loadObstaclesFromJson(game.worldInfo, stageIter.next().value, offset)) {
+            game.addEntity(obstacle);
+            nextObstacles.push(obstacle);
+        }
+    }
+    /**
+     * Removes the obstacles that the camera has passed by, and swaps the current (now removed) obstacle list
+     * with the next (now visible obstacles)
+     */
+    function removeOldObstacles() {
+        for (let obstacle of currentObstacles) {
+            game.removeEntity(obstacle);
+        }
+        currentObstacles = nextObstacles;
+        nextObstacles = [];
+    }
+
+    return {
+        loadObstacles,
+        removeOldObstacles
+    };
+};
+
+export function play() {
+
+    let {
+        mainCanvas,
+        mainContext,
+        START_TO_OBSTACLES,
+        PLAYER_DISTANCE_FROM_CAMERA
+    } = createMainCanvas();
 
     //Holds the state of keypresses for the application (ends up being the browser window in this case)
     let keyState = new KeyState();
@@ -77,46 +144,11 @@ export default function() {
 
     game.addEntity(player);
 
-
-    //Helper functions for adding or removing obstacle entities
-    //TODO(wg): clean this up, put in to a nicer set of functions
-    let {loadObstacles, removeOldObstacles} = (function() {
-        let currentObstacles = [];
-        let nextObstacles = [];
-
-        /**
-         * Loads obstacles for one screen length, and places them one screen length away from the camera position
-         */
-        function loadObstacles() {
-
-            let offset = camera.blockPosition.toLoadLeft;
-
-            for (let obstacle of loadObstaclesFromJson(game.worldInfo, level1, offset)) {
-                game.addEntity(obstacle);
-                nextObstacles.push(obstacle);
-            }
-        }
-        /**
-         * Removes the obstacles that the camera has passed by, and swaps the current (now removed) obstacle list
-         * with the next (now visible obstacles)
-         */
-        function removeOldObstacles() {
-            for (let obstacle of currentObstacles) {
-                game.removeEntity(obstacle);
-            }
-            currentObstacles = nextObstacles;
-            nextObstacles = [];
-        }
-
-        return {
-            loadObstacles,
-            removeOldObstacles
-        };
-    })();
+    let {loadObstacles, removeOldObstacles} = obstacleHelpers(game);
 
     //Have to load the initial obstacles for the current screen, since the auto-loading
     //functionality works on loading the next (off-camera) screen
-    loadObstacles();
+    loadObstacles(camera.blockPosition.toLoadLeft);
 
     let loop = new GameLoop(game);
 
@@ -128,11 +160,54 @@ export default function() {
 
     gameLogic.events.shouldLoadNextZone.subscribe((data) => {
         removeOldObstacles();
-        loadObstacles();
+        loadObstacles(camera.blockPosition.toLoadLeft);
     })
 
     //Here we go! Start the game loop and start playing
     gameLogic.state.gameRunning = true;
     loop.startLoop();
+
+}
+
+export function debugStage() {
+
+    let {
+        mainCanvas,
+        mainContext,
+        START_TO_OBSTACLES,
+        PLAYER_DISTANCE_FROM_CAMERA
+    } = createMainCanvas();
+
+    //TODO(wg): make this much less messy
+    let camera = {
+        position: {
+            x: 0, 
+            y: 0
+        },
+        blockPosition: {
+            left: START_TO_OBSTACLES,
+            toLoadLeft: 0,
+            _lastBlockPosition: START_TO_OBSTACLES + 1
+        },
+        update: function() {
+        }
+    }
+
+    let gameLogic = new GameLogic();
+    camera.gameLogic = gameLogic;
+
+    let game = new GameCore(mainContext, camera, gameLogic);
+
+    let {loadObstacles, removeOldObstacles} = obstacleHelpers(game);
+
+    //Have to load the initial obstacles for the current screen, since the auto-loading
+    //functionality works on loading the next (off-camera) screen
+    loadObstacles(0);
+
+    let loop = new GameLoop(game);
+
+    //We only want to run one tick of the loop, just enough to see the stage
+    gameLogic.state.gameRunning = true;
+    loop.tick();
 
 }

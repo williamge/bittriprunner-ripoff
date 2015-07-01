@@ -184,6 +184,11 @@ export class GameLoop {
         this.gameCore.render(this._lastUpdateTime);
     }
 
+    tick() {
+        this.update();
+        this.render();
+    }
+
     /**
      * Starts or resumes the game loop and continuously calls #update and #render on the attached
      * GameCore until paused.
@@ -191,8 +196,7 @@ export class GameLoop {
     startLoop() {
         this.running = true;
         this._interval = setInterval(() => {
-            this.update();
-            this.render();
+            this.tick();
         }, 1);
     }
 
