@@ -8,11 +8,19 @@ import BoundingBox from '../lib/BoundingBox'
 
 import {Updatable, Boundable, Renderable} from './decorators/EntityDescriptions'
 
+/**
+ * Represents an obstacle in the game world which the player has to avoid or the game ends.
+ */
 @Boundable(BoundingGroupNames.Blocks)
 @Renderable
 @Updatable
 export class Obstacle extends Entity {
-    constructor(worldInfo, size, position) {
+    /**
+     * Obstacle constructor
+     * @param  {Size2d} size      Initial size for the obstacle
+     * @param  {Vector2d} position  Initial position for the obstacle
+     */
+    constructor(size, position) {
         super();
         this.size = new size2({
             width: size.width,
@@ -39,20 +47,27 @@ export class Obstacle extends Entity {
         )
     }
 
-    render(context, globalTime, applyScreenTransform) {
-        let ctxWidth = context.canvas.width
-        let ctxHeight = context.canvas.height
+    render(context, globalTime, applyScreenTransform, applyCameraTransform) {
+        applyCameraTransform(context);
 
-        applyScreenTransform(this.position, this.size);
+        applyScreenTransform(context, this.position, this.size);
 
         context.fillStyle = this._colour;
         context.fillRect(0, 0, this.size.width, this.size.height)
     }
 }
 
+/**
+ * Generator which loads a series of blocks from a JSON list and places it relative in
+ * the game world based on the given x-offset
+ * @param {WorldInfo} worldInfo     WorldInfo for the game world that the obstacles will be added to
+ * @param {Obstacle[]} JsonList      List of obstacle definitions that will be loaded
+ * @param {number} offsetX       x-offset for the camera position in the world
+ * @yield {Obstacle} initialized Obstacle instance
+ */
 export function *loadObstaclesFromJson(worldInfo, JsonList, offsetX) {
     for (let obstacleDef of JsonList) {
-        yield new Obstacle(worldInfo, obstacleDef.size, new vec2({
+        yield new Obstacle(obstacleDef.size, new vec2({
             x: obstacleDef.position.x + offsetX,
             y: obstacleDef.position.y
         }));

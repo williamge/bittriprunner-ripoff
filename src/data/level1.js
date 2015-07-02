@@ -1,3 +1,18 @@
+/**
+ * Some notes on levels:
+ *
+ * They're not so much levels, they're more of block layouts one screen-width wide that are
+ * put together randomly to form one continuous level.
+ *
+ * Assumptions:
+ *     - screen width is 640
+ *     - screen height is 240
+ *
+ * Good practices:
+ *     - first block that the player can hit should be at least 160 units in to the level, 
+ *     just so that there's a nice break between each segment
+ */
+
 export default [
     {
         //Decoration blocks (for testing):

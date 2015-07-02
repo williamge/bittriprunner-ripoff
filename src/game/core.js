@@ -3,6 +3,10 @@ import {Symbols as EntitySymbols} from './decorators/EntityDescriptions'
 
 import Channel from '../lib/Channel'
 
+/**
+ * Returns the current time in milliseconds. Not a high performance timer.
+ * @return {number} The current time in milliseconds
+ */
 function now() {
     let _nowDate = new Date()
     return _nowDate.getTime()
@@ -14,6 +18,9 @@ export const BoundingGroupNames = {
     UNKNOWN: Symbol('UNKNOWN')
 }
 
+/**
+ * Very stateful class for holding game logic. Put all your state in here please.
+ */
 export class GameLogic {
     constructor() {
         this.events = {
@@ -32,9 +39,21 @@ export class GameLogic {
     }
 }
 
+/**
+ * Core engine-ish class for the game. Handles the holding of entities, calling update and render
+ * on those entities, and describing/coralling the current game.
+ */
 export class GameCore {
+    /**
+     * Constructor method for GameCore
+     * @param  {CanvasRenderingContext2D} context   The rendering context for the game
+     * @param  {Camera} camera    A camera instance for the game
+     * @param  {GameLogic} gameLogic Game logic instance for the game
+     */
     constructor(context, camera, gameLogic) {
         this.context = context;
+        this.camera = camera;
+        this.gameLogic = gameLogic;
 
         this._entities = new Set();
         this._updatables = new Set();
@@ -42,33 +61,49 @@ export class GameCore {
 
         this._boundingGroups = new Map();
 
+        //Sets up Set objects for each bounding group defined in the BoundingGroupNames enum
         for (let name of Object.keys(BoundingGroupNames)) {
             this._boundingGroups.set(BoundingGroupNames[name], new Set());
         }
 
-        this.camera = camera;
-        this.gameLogic = gameLogic;
-
-        this._transformPointToRender = (position, size) => {
+        /**
+         * Sets the function to transform points for rendering. This is passed to the game's
+         * render loop
+         * @param  {CanvasRenderingContext2D} context The context to transform
+         * @param  {Vector2d} position 
+         * @param  {Size2d} size     
+         */
+        this._transformPointToRender = (context, position, size) => {
             let renderCoordinates = {
                 y: this.worldInfo.height - size.height - position.y,
                 x: position.x
             };
-            this.context.translate(renderCoordinates.x,renderCoordinates.y);
+            context.translate(renderCoordinates.x,renderCoordinates.y);
+        }
+
+        /**
+         * Sets the function to transform a context to the camera's view for rendering. 
+         * This is passed to the game's render loop
+         * @param  {CanvasRenderingContext2D} context The context to transform
+         * @param  {Size2d} size     
+         */
+        this._cameraTransform = (context) => {
+            //Camera transform
+            context.translate(this.camera.position.x, this.camera.position.y);
         }
     }
 
     addEntity(entity) {
         this._entities.add(entity);
-        if (entity.constructor[EntitySymbols.updatable]) {
+        if (entity[EntitySymbols.updatable]) {
             this._updatables.add(entity)
         }
-        if (entity.constructor[EntitySymbols.renderable]) {
+        if (entity[EntitySymbols.renderable]) {
             this._renderables.add(entity)
         }
-        if (entity.constructor[EntitySymbols.boundable]) {
-            if ( this._boundingGroups.has(entity.constructor[EntitySymbols.boundable]) ){
-                this._boundingGroups.get(entity.constructor[EntitySymbols.boundable]).add(entity);
+        if (entity[EntitySymbols.boundable]) {
+            if ( this._boundingGroups.has(entity[EntitySymbols.boundable]) ){
+                this._boundingGroups.get(entity[EntitySymbols.boundable]).add(entity);
             } else {
                 console.warn(`Bounding group '${entity.getBoundingBox.boundingGroup}' is not defined for this game`);
             }
@@ -89,6 +124,10 @@ export class GameCore {
         })
     }
 
+    /**
+     * Updates the game and calls the update loop on added entities
+     * @param  {number} delta Time in milliseconds since the last call of update
+     */
     update(delta) {
         this._updatables.forEach((updatable) => {
             if (this.gameLogic.state.gameRunning) {
@@ -99,18 +138,21 @@ export class GameCore {
         this.camera.update(delta);
     }
 
+    /**
+     * Renders the game and calls the render loop on added entities
+     * @param  {number} globalTime Elapsed time since the start of the game
+     */
     render(globalTime) {
         this.context.save()
 
+        //Clearing the screen
         this.context.fillStyle = 'hsl(0, 0%, 99%)'
         this.context.fillRect(0, 0, this.context.canvas.width, this.context.canvas.height)
 
-        this.context.translate(this.camera.position.x, this.camera.position.y);
-
         this._renderables.forEach((renderable) => {
-            this.context.save()
-            renderable.render(this.context, globalTime, this._transformPointToRender)
-            this.context.restore()
+            this.context.save();
+            renderable.render(this.context, globalTime, this._transformPointToRender, this._cameraTransform);
+            this.context.restore();
         })
 
         this.context.restore()
@@ -124,6 +166,9 @@ export class GameCore {
     }
 }
 
+/**
+ * Class for handling the continuous loop of a game.
+ */
 export class GameLoop {
     constructor(gameCore) {
         this.gameCore = gameCore;
@@ -148,14 +193,25 @@ export class GameLoop {
         this.gameCore.render(this._lastUpdateTime);
     }
 
+    tick() {
+        this.update();
+        this.render();
+    }
+
+    /**
+     * Starts or resumes the game loop and continuously calls #update and #render on the attached
+     * GameCore until paused.
+     */
     startLoop() {
         this.running = true;
         this._interval = setInterval(() => {
-            this.update();
-            this.render();
+            this.tick();
         }, 1);
     }
 
+    /**
+     * Pauses the game loop, can be resumed with #startLoop
+     */
     pauseLoop() {
         this.running = false;
         clearInterval(this._interval);

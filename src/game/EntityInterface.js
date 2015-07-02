@@ -24,12 +24,15 @@ export default class Entity {
      * state and should not contain any logic to change the object beyond rendering it.
      * @param  {CanvasRenderingContext2D} context              The context to render the object to
      * @param  {Number} globalTime           Elapsed time since the start of the game
-     * @param  {(position, size) => void} applyScreenTransform applies a screen transformation to the render context
+     * @param  {(CanvasRenderingContext2D, position, size) => void} applyScreenTransform Applies a screen transformation to the render context
      * to move the context in to a state that game coordinates can be applied to. This should be called before
+     * rendering any points using game/world-coordinates
+     * @param  {(CanvasRenderingContext2D) => void} applyCameraTransform Applies a camera transformation to the render context
+     * to move the context in to a state that game coordinates can be applied to relative to the camera. This should be called before
      * rendering any points using game/world-coordinates
      * @return {void}                      
      */
-    render(context, globalTime, applyScreenTransform) {
+    render(context, globalTime, applyScreenTransform, applyCameraTransform) {
         /**
          * Make sure to call the #applyScreenTransform function to translate the render context
          * to the screen coordinates or else any drawn points will not show up in the proper spot.
@@ -39,5 +42,23 @@ export default class Entity {
          * that y-axis flipped, so a transformation has to be applied to ensure that the game coordinates
          * when rendered line up with the canvas coordinates. 
          */
+    }
+
+    /**
+     * Returns an axis-aligned bounding box for the object, up to the inheriting class to decide
+     * how that should be made. This can be called at any time after initialization, so beware.
+     * @return {BoundingBox} BoundingBox instance for the instance
+     */
+    getBoundingBox() {
+        return new BoundingBox(
+            new vec2({
+                x: this.position.x,
+                y: this.position.y + this.size.height
+            }),
+            new vec2({
+                x: this.position.x + this.size.width,
+                y: this.position.y
+            })
+        )
     }
 }
