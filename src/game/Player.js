@@ -42,6 +42,9 @@ export default class Player extends Entity {
         })
 
         this.keyState = keyState;
+
+        this.personalCanvas = document.createElement('canvas');
+        this.oldPosition = this.position;
     }
 
     getBoundingBox() {
@@ -85,21 +88,64 @@ export default class Player extends Entity {
                 this.velocity.y += this.acceleration.y * (delta/1000);
             }
 
+            this.oldPosition = this.position.copy();
+
             this.position.x += this.velocity.x * (delta/1000);
             this.position.y += this.velocity.y * (delta/1000);
         }
     }
 
-    render(context, globalTime, applyScreenTransform) {
-        let ctxWidth = context.canvas.width
-        let ctxHeight = context.canvas.height
+    render(context, globalTime, applyScreenTransform, applyCameraTransform) {
+
+        let mixingCanvas = document.createElement('canvas');
+        mixingCanvas.width = context.canvas.width;
+        mixingCanvas.height = context.canvas.height;
+        let mixingContext = mixingCanvas.getContext('2d');
+
+
+        /**
+         * Displays nice trails:
+         * 
+         * this.personalCanvas holds the player rendering we did last last pass of the render loop.
+         *
+         * Since we want to have nice trails behind the player, we have to move the last rendering
+         * back to the last frame (by moving -(difference between current position and last frame's position))
+         * and then render the last frame rendering (this.personalCanvas) in to our current frame
+         * rendering (mixingContext).
+         */
+        mixingContext.save();
+
+        applyScreenTransform(mixingContext, new vec2({x: -(this.position.x - this.oldPosition.x), y: 0}), new size2({width: mixingCanvas.width, height: mixingCanvas.height} ));
+        mixingContext.globalAlpha = 0.93;
+        mixingContext.drawImage(this.personalCanvas, 0, 0);   
+        
+        mixingContext.restore();    
+
+
+        /**
+         * Renders the actual player sprite for this frame.
+         */
+        mixingContext.save();
+
+        applyCameraTransform(mixingContext);
+        applyScreenTransform(mixingContext, this.position, this.size);
 
         //Changing colour over time
         let hue = (Math.sin((globalTime / 6000) * Math.PI) + 1) * 360
 
-        applyScreenTransform(this.position, this.size);
+        mixingContext.fillStyle = `hsl(${hue}, 30%, 70%)`
+        mixingContext.fillRect(0, 0, this.size.width, this.size.height); 
 
-        context.fillStyle = `hsl(${hue}, 30%, 70%)`
-        context.fillRect(0, 0, this.size.width, this.size.height)
+        mixingContext.restore();    
+
+        context.drawImage(mixingCanvas, 0, 0);
+
+        /**
+         * Since we have rendered this frame's sprite in to this frame's rendering and we
+         * have nothing else to render, we swap the last frame's rendering with this one,
+         * since the next time render is run this will have been the last frame's rendering.
+         */
+        this.personalCanvas = mixingCanvas;
+
     }
 }

@@ -47,11 +47,10 @@ export class Obstacle extends Entity {
         )
     }
 
-    render(context, globalTime, applyScreenTransform) {
-        let ctxWidth = context.canvas.width
-        let ctxHeight = context.canvas.height
+    render(context, globalTime, applyScreenTransform, applyCameraTransform) {
+        applyCameraTransform(context);
 
-        applyScreenTransform(this.position, this.size);
+        applyScreenTransform(context, this.position, this.size);
 
         context.fillStyle = this._colour;
         context.fillRect(0, 0, this.size.width, this.size.height)

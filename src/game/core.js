@@ -69,15 +69,27 @@ export class GameCore {
         /**
          * Sets the function to transform points for rendering. This is passed to the game's
          * render loop
+         * @param  {CanvasRenderingContext2D} context The context to transform
          * @param  {Vector2d} position 
          * @param  {Size2d} size     
          */
-        this._transformPointToRender = (position, size) => {
+        this._transformPointToRender = (context, position, size) => {
             let renderCoordinates = {
                 y: this.worldInfo.height - size.height - position.y,
                 x: position.x
             };
-            this.context.translate(renderCoordinates.x,renderCoordinates.y);
+            context.translate(renderCoordinates.x,renderCoordinates.y);
+        }
+
+        /**
+         * Sets the function to transform a context to the camera's view for rendering. 
+         * This is passed to the game's render loop
+         * @param  {CanvasRenderingContext2D} context The context to transform
+         * @param  {Size2d} size     
+         */
+        this._cameraTransform = (context) => {
+            //Camera transform
+            context.translate(this.camera.position.x, this.camera.position.y);
         }
     }
 
@@ -137,13 +149,10 @@ export class GameCore {
         this.context.fillStyle = 'hsl(0, 0%, 99%)'
         this.context.fillRect(0, 0, this.context.canvas.width, this.context.canvas.height)
 
-        //Camera transform
-        this.context.translate(this.camera.position.x, this.camera.position.y);
-
         this._renderables.forEach((renderable) => {
-            this.context.save()
-            renderable.render(this.context, globalTime, this._transformPointToRender)
-            this.context.restore()
+            this.context.save();
+            renderable.render(this.context, globalTime, this._transformPointToRender, this._cameraTransform);
+            this.context.restore();
         })
 
         this.context.restore()
