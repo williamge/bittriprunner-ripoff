@@ -44,6 +44,11 @@
 /* 0 */
 /***/ function(module, exports, __webpack_require__) {
 
+	/**
+	 * Just a global file for central configuration of the application. Loads global components, CSS,
+	 * and the main function, and then calls the main function to start the application.
+	 */
+	
 	'use strict';
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -54,11 +59,74 @@
 	
 	var polyfill = _interopRequireWildcard(_babelPolyfill);
 	
-	var _main = __webpack_require__(98);
+	var _srcMain = __webpack_require__(98);
 	
-	var _main2 = _interopRequireDefault(_main);
+	var _srcMain2 = _interopRequireDefault(_srcMain);
 	
-	(0, _main2['default'])();
+	var urlSplit = window.location.href.split('#');
+	
+	var cvars = {
+	    debugMode: {
+	        enabled: false,
+	        stage: {
+	            enabled: false,
+	            number: -1
+	        }
+	    },
+	    features: {
+	        randomBlocks: false
+	    }
+	};
+	
+	if (urlSplit.length > 1) {
+	    var params = urlSplit[1].split(',');
+	
+	    var _iteratorNormalCompletion = true;
+	    var _didIteratorError = false;
+	    var _iteratorError = undefined;
+	
+	    try {
+	        for (var _iterator = params[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+	            var parameter = _step.value;
+	
+	            if (parameter.indexOf('debug_stage') != -1) {
+	                cvars.debugMode.enabled = true;
+	                cvars.debugMode.stage.enabled = true;
+	                cvars.debugMode.stage.number = Number(parameter.split('=')[1]);
+	            }
+	
+	            if (parameter == 'random_blocks') {
+	                cvars.features.randomBlocks = true;
+	            }
+	        }
+	    } catch (err) {
+	        _didIteratorError = true;
+	        _iteratorError = err;
+	    } finally {
+	        try {
+	            if (!_iteratorNormalCompletion && _iterator['return']) {
+	                _iterator['return']();
+	            }
+	        } finally {
+	            if (_didIteratorError) {
+	                throw _iteratorError;
+	            }
+	        }
+	    }
+	}
+	
+	var _main = (0, _srcMain2['default'])(cvars);
+	
+	var debugStage = _main.debugStage;
+	var play = _main.play;
+	
+	if (!cvars.debugMode.enabled) {
+	    play();
+	} else {
+	    if (cvars.debugMode.stage.enabled) {
+	        debugStage(cvars.debugMode.stage.number);
+	    }
+	}
 
 /***/ },
 /* 1 */
@@ -4435,109 +4503,153 @@
 	    value: true
 	});
 	
+	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+	
+	var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+	
+	exports['default'] = factory;
+	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 	
 	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj['default'] = obj; return newObj; } }
 	
-	var _globalCss = __webpack_require__(102);
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; }
+	
+	var _globalCss = __webpack_require__(101);
 	
 	var __globalcss = _interopRequireWildcard(_globalCss);
 	
-	var _canvasCss = __webpack_require__(106);
+	var _canvasCss = __webpack_require__(105);
 	
 	var __canvascss = _interopRequireWildcard(_canvasCss);
 	
-	var _gamePlayer = __webpack_require__(108);
+	var _gamePlayer = __webpack_require__(107);
 	
 	var _gamePlayer2 = _interopRequireDefault(_gamePlayer);
 	
-	var _gameObstacle = __webpack_require__(112);
+	var _gameObstacle = __webpack_require__(113);
 	
-	var _gameCore = __webpack_require__(99);
+	var _gameCore = __webpack_require__(109);
 	
-	var _gameKeyState = __webpack_require__(113);
+	var _gameCamera = __webpack_require__(99);
+	
+	var _gameCamera2 = _interopRequireDefault(_gameCamera);
+	
+	var _gameKeyState = __webpack_require__(114);
 	
 	var _gameKeyState2 = _interopRequireDefault(_gameKeyState);
 	
-	var _Input = __webpack_require__(114);
+	var _Input = __webpack_require__(115);
 	
 	var _Input2 = _interopRequireDefault(_Input);
 	
-	var _dataLevel1 = __webpack_require__(115);
+	var _dataLevel1 = __webpack_require__(116);
 	
 	var _dataLevel12 = _interopRequireDefault(_dataLevel1);
 	
-	exports['default'] = function () {
+	var _dataLevel2 = __webpack_require__(117);
 	
-	    var mainHandle = document.getElementById('main-handle');
+	var _dataLevel22 = _interopRequireDefault(_dataLevel2);
 	
-	    var mainCanvas = document.createElement('canvas');
-	    mainCanvas.classList.add('bordered-canvas');
-	    mainCanvas.width = 640;
-	    mainCanvas.height = 240;
+	function factory(cvars) {
 	
-	    var mainContext = mainCanvas.getContext('2d');
-	    mainHandle.appendChild(mainCanvas);
+	    var createMainCanvas = function createMainCanvas() {
+	        var mainHandle = document.getElementById('main-handle');
 	
-	    var keyState = new _gameKeyState2['default']();
+	        var mainCanvas = document.createElement('canvas');
+	        mainCanvas.classList.add('bordered-canvas');
+	        mainCanvas.width = 640;
+	        mainCanvas.height = 240;
 	
-	    var inputHandler = new _Input2['default'](keyState);
-	    inputHandler.listenTo(window);
+	        var mainContext = mainCanvas.getContext('2d');
+	        mainHandle.appendChild(mainCanvas);
 	
-	    var camera = {
-	        position: {
-	            x: 0,
-	            y: 0
-	        },
-	        blockPosition: {
-	            left: mainCanvas.width * (3 / 4),
-	            toLoadLeft: mainCanvas.width * (3 / 4) + mainCanvas.width,
-	            _lastBlockPosition: mainCanvas.width * (3 / 4) + 1
-	        },
-	        player: null,
-	        gameLogic: null,
-	        update: function update() {
-	            //Pegging the camera's position to the player, but only on the x-axis so we can see
-	            //the player jump properly
-	            this.position.x = -(this.player.position.x - mainContext.canvas.width / 4);
+	        var START_TO_OBSTACLES = 0;
+	        var PLAYER_DISTANCE_FROM_CAMERA = mainContext.canvas.width / 4;
 	
-	            this.blockPosition.left = this.player.position.x - mainContext.canvas.width / 4;
-	            this.blockPosition.toLoadLeft = this.blockPosition.left + mainCanvas.width;
-	
-	            var blockRelativeXPosition = this.blockPosition.left % mainCanvas.width;
-	
-	            if (blockRelativeXPosition < this._lastBlockPosition && this.blockPosition.left > mainCanvas.width + mainCanvas.width * (3 / 4)) {
-	                this.gameLogic.events.shouldLoadNextZone.publish();
-	            }
-	
-	            this._lastBlockPosition = blockRelativeXPosition;
-	        }
+	        return {
+	            mainCanvas: mainCanvas,
+	            mainContext: mainContext,
+	            START_TO_OBSTACLES: START_TO_OBSTACLES,
+	            PLAYER_DISTANCE_FROM_CAMERA: PLAYER_DISTANCE_FROM_CAMERA
+	        };
 	    };
 	
-	    var gameLogic = new _gameCore.GameLogic();
-	    camera.gameLogic = gameLogic;
+	    //Helper functions for adding or removing obstacle entities
+	    //TODO(wg): clean this up, put in to a nicer set of functions
+	    var obstacleHelpers = function obstacleHelpers(game) {
+	        var marked2$0 = [getStage, getRandomStage].map(regeneratorRuntime.mark);
 	
-	    var game = new _gameCore.GameCore(mainContext, camera, gameLogic);
+	        var stages = [_dataLevel12['default'], _dataLevel22['default']];
 	
-	    var player = new _gamePlayer2['default'](game.worldInfo, keyState);
-	    camera.player = player;
+	        function getStage() {
+	            var i;
+	            return regeneratorRuntime.wrap(function getStage$(context$3$0) {
+	                while (1) switch (context$3$0.prev = context$3$0.next) {
+	                    case 0:
+	                        i = -1;
 	
-	    game.addEntity(player);
+	                    case 1:
+	                        if (++i == stages.length) {
+	                            i = 0;
+	                        }
+	                        context$3$0.next = 4;
+	                        return stages[i];
 	
-	    var _ref = (function () {
+	                    case 4:
+	                        context$3$0.next = 1;
+	                        break;
+	
+	                    case 6:
+	                    case 'end':
+	                        return context$3$0.stop();
+	                }
+	            }, marked2$0[0], this);
+	        }
+	
+	        function getRandomStage() {
+	            var randomNumber;
+	            return regeneratorRuntime.wrap(function getRandomStage$(context$3$0) {
+	                while (1) switch (context$3$0.prev = context$3$0.next) {
+	                    case 0:
+	                        randomNumber = Math.random();
+	
+	                        randomNumber = randomNumber * (stages.length - 1);
+	                        randomNumber = Math.round(randomNumber);
+	
+	                        context$3$0.next = 5;
+	                        return stages[randomNumber];
+	
+	                    case 5:
+	                        context$3$0.next = 0;
+	                        break;
+	
+	                    case 7:
+	                    case 'end':
+	                        return context$3$0.stop();
+	                }
+	            }, marked2$0[1], this);
+	        }
+	
 	        var currentObstacles = [];
 	        var nextObstacles = [];
 	
-	        function loadObstacles() {
+	        var stageIter = cvars.features.randomBlocks ? getRandomStage() : getStage();
 	
-	            var offset = camera.blockPosition.toLoadLeft;
+	        /**
+	         * Loads obstacles for one screen length, and places them one screen length away from the camera position
+	         */
+	        function loadObstacles(offset, optionalStageIndex) {
+	            var stage = optionalStageIndex != null ? stages[optionalStageIndex] : stageIter.next().value;
 	
 	            var _iteratorNormalCompletion = true;
 	            var _didIteratorError = false;
 	            var _iteratorError = undefined;
 	
 	            try {
-	                for (var _iterator = (0, _gameObstacle.loadObstaclesFromJson)(game.worldInfo, _dataLevel12['default'], offset)[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+	                for (var _iterator = (0, _gameObstacle.loadObstaclesFromJson)(game.worldInfo, stage, offset)[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
 	                    var obstacle = _step.value;
 	
 	                    game.addEntity(obstacle);
@@ -4558,6 +4670,10 @@
 	                }
 	            }
 	        }
+	        /**
+	         * Removes the obstacles that the camera has passed by, and swaps the current (now removed) obstacle list
+	         * with the next (now visible obstacles)
+	         */
 	        function removeOldObstacles() {
 	            var _iteratorNormalCompletion2 = true;
 	            var _didIteratorError2 = false;
@@ -4592,29 +4708,138 @@
 	            loadObstacles: loadObstacles,
 	            removeOldObstacles: removeOldObstacles
 	        };
-	    })();
+	    };
 	
-	    var loadObstacles = _ref.loadObstacles;
-	    var removeOldObstacles = _ref.removeOldObstacles;
+	    function play(cvars) {
+	        var _createMainCanvas = createMainCanvas();
 	
-	    loadObstacles();
+	        var mainCanvas = _createMainCanvas.mainCanvas;
+	        var mainContext = _createMainCanvas.mainContext;
+	        var START_TO_OBSTACLES = _createMainCanvas.START_TO_OBSTACLES;
+	        var PLAYER_DISTANCE_FROM_CAMERA = _createMainCanvas.PLAYER_DISTANCE_FROM_CAMERA;
 	
-	    var loop = new _gameCore.GameLoop(game);
+	        //Holds the state of keypresses for the application (ends up being the browser window in this case)
+	        var keyState = new _gameKeyState2['default']();
 	
-	    gameLogic.events.playerHitBlock.subscribe(function (data) {
-	        loop.pauseLoop();
-	        gameLogic.state.gameRunning = false;
-	        alert('Game Over! Score: ' + player.position.x.toFixed(0));
-	    });
+	        //Creates handlers for input on the browser window and binds key state to the keyState object
+	        var inputHandler = new _Input2['default'](keyState);
+	        inputHandler.listenTo(window);
 	
-	    gameLogic.events.shouldLoadNextZone.subscribe(function (data) {
-	        removeOldObstacles();
-	        loadObstacles();
-	    });
+	        var gameLogic = new _gameCore.GameLogic();
+	        var player = new _gamePlayer2['default'](keyState);
 	
-	    gameLogic.state.gameRunning = true;
-	    loop.startLoop();
-	};
+	        var camera = (function () {
+	            var GameCamera = (function (_Camera) {
+	                function GameCamera() {
+	                    _classCallCheck(this, GameCamera);
+	
+	                    _get(Object.getPrototypeOf(GameCamera.prototype), 'constructor', this).call(this);
+	                    this.position = {
+	                        x: 0,
+	                        y: 0
+	                    };
+	
+	                    this.blockPosition = {
+	                        left: START_TO_OBSTACLES,
+	                        toLoadLeft: START_TO_OBSTACLES + mainCanvas.width,
+	                        _lastBlockPosition: START_TO_OBSTACLES + 1
+	                    };
+	                }
+	
+	                _inherits(GameCamera, _Camera);
+	
+	                _createClass(GameCamera, [{
+	                    key: 'update',
+	                    value: function update(delta) {
+	                        //Pegging the camera's position to the player, but only on the x-axis so we can see
+	                        //the player jump properly
+	                        this.position.x = -(player.position.x - PLAYER_DISTANCE_FROM_CAMERA);
+	
+	                        this.blockPosition.left = player.position.x - PLAYER_DISTANCE_FROM_CAMERA;
+	                        this.blockPosition.toLoadLeft = this.blockPosition.left + mainCanvas.width;
+	
+	                        var blockRelativeXPosition = this.blockPosition.left % mainCanvas.width;
+	
+	                        if (blockRelativeXPosition < this._lastBlockPosition && this.blockPosition.left > START_TO_OBSTACLES + mainCanvas.width) {
+	                            gameLogic.events.shouldLoadNextZone.publish();
+	                        }
+	
+	                        this._lastBlockPosition = blockRelativeXPosition;
+	                    }
+	                }]);
+	
+	                return GameCamera;
+	            })(_gameCamera2['default']);
+	
+	            return new GameCamera();
+	        })();
+	
+	        var game = new _gameCore.GameCore(mainContext, camera, gameLogic);
+	
+	        game.addEntity(player);
+	
+	        var _obstacleHelpers = obstacleHelpers(game);
+	
+	        var loadObstacles = _obstacleHelpers.loadObstacles;
+	        var removeOldObstacles = _obstacleHelpers.removeOldObstacles;
+	
+	        //Have to load the initial obstacles for the current screen, since the auto-loading
+	        //functionality works on loading the next (off-camera) screen
+	        loadObstacles(camera.blockPosition.toLoadLeft);
+	
+	        var loop = new _gameCore.GameLoop(game);
+	
+	        gameLogic.events.playerHitBlock.subscribe(function (data) {
+	            loop.pauseLoop();
+	            gameLogic.state.gameRunning = false;
+	            alert('Game Over! Score: ' + player.position.x.toFixed(0));
+	        });
+	
+	        gameLogic.events.shouldLoadNextZone.subscribe(function (data) {
+	            removeOldObstacles();
+	            loadObstacles(camera.blockPosition.toLoadLeft);
+	        });
+	
+	        //Here we go! Start the game loop and start playing
+	        gameLogic.state.gameRunning = true;
+	        loop.startLoop();
+	    }
+	
+	    function debugStage(stage) {
+	        var _createMainCanvas2 = createMainCanvas();
+	
+	        var mainCanvas = _createMainCanvas2.mainCanvas;
+	        var mainContext = _createMainCanvas2.mainContext;
+	        var START_TO_OBSTACLES = _createMainCanvas2.START_TO_OBSTACLES;
+	        var PLAYER_DISTANCE_FROM_CAMERA = _createMainCanvas2.PLAYER_DISTANCE_FROM_CAMERA;
+	
+	        var camera = new _gameCamera2['default']();
+	
+	        var gameLogic = new _gameCore.GameLogic();
+	
+	        var game = new _gameCore.GameCore(mainContext, camera, gameLogic);
+	
+	        var _obstacleHelpers2 = obstacleHelpers(game);
+	
+	        var loadObstacles = _obstacleHelpers2.loadObstacles;
+	        var removeOldObstacles = _obstacleHelpers2.removeOldObstacles;
+	
+	        //Have to load the initial obstacles for the current screen, since the auto-loading
+	        //functionality works on loading the next (off-camera) screen
+	        loadObstacles(0, stage);
+	
+	        var loop = new _gameCore.GameLoop(game);
+	
+	        //We only want to run one tick of the loop, just enough to see the stage
+	        gameLogic.state.gameRunning = true;
+	        loop.tick();
+	    }
+	
+	    return {
+	        play: play,
+	        debugStage: debugStage
+	    };
+	}
 	
 	module.exports = exports['default'];
 
@@ -4630,293 +4855,33 @@
 	
 	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 	
-	var _decoratorsEntityDescriptions = __webpack_require__(100);
+	var _libVector2d = __webpack_require__(100);
 	
-	var _libChannel = __webpack_require__(101);
+	var Camera = (function () {
+	    function Camera() {
+	        _classCallCheck(this, Camera);
 	
-	var _libChannel2 = _interopRequireDefault(_libChannel);
-	
-	function now() {
-	    var _nowDate = new Date();
-	    return _nowDate.getTime();
-	}
-	
-	var BoundingGroupNames = {
-	    Player: Symbol('Player'),
-	    Blocks: Symbol('Blocks'),
-	    UNKNOWN: Symbol('UNKNOWN')
-	};
-	
-	exports.BoundingGroupNames = BoundingGroupNames;
-	
-	var GameLogic = function GameLogic() {
-	    _classCallCheck(this, GameLogic);
-	
-	    this.events = {
-	        playerHitBlock: new _libChannel2['default'](),
-	        shouldLoadNextZone: new _libChannel2['default']()
-	    };
-	
-	    this.constants = {
-	        //TODO(wg): Just gonna use 2 for now for testing, should be random at some point
-	        seed: 2
-	    };
-	
-	    this.state = {
-	        gameRunning: false
-	    };
-	};
-	
-	exports.GameLogic = GameLogic;
-	
-	var GameCore = (function () {
-	    function GameCore(context, camera, gameLogic) {
-	        var _this = this;
-	
-	        _classCallCheck(this, GameCore);
-	
-	        this.context = context;
-	
-	        this._entities = new Set();
-	        this._updatables = new Set();
-	        this._renderables = new Set();
-	
-	        this._boundingGroups = new Map();
-	
-	        var _iteratorNormalCompletion = true;
-	        var _didIteratorError = false;
-	        var _iteratorError = undefined;
-	
-	        try {
-	            for (var _iterator = Object.keys(BoundingGroupNames)[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-	                var _name = _step.value;
-	
-	                this._boundingGroups.set(BoundingGroupNames[_name], new Set());
-	            }
-	        } catch (err) {
-	            _didIteratorError = true;
-	            _iteratorError = err;
-	        } finally {
-	            try {
-	                if (!_iteratorNormalCompletion && _iterator['return']) {
-	                    _iterator['return']();
-	                }
-	            } finally {
-	                if (_didIteratorError) {
-	                    throw _iteratorError;
-	                }
-	            }
-	        }
-	
-	        this.camera = camera;
-	        this.gameLogic = gameLogic;
-	
-	        this._transformPointToRender = function (position, size) {
-	            var renderCoordinates = {
-	                y: _this.worldInfo.height - size.height - position.y,
-	                x: position.x
-	            };
-	            _this.context.translate(renderCoordinates.x, renderCoordinates.y);
-	        };
+	        this.position = new _libVector2d.Vector2d({
+	            x: 0,
+	            y: 0
+	        });
 	    }
 	
-	    _createClass(GameCore, [{
-	        key: 'addEntity',
-	        value: function addEntity(entity) {
-	            this._entities.add(entity);
-	            if (entity.constructor[_decoratorsEntityDescriptions.Symbols.updatable]) {
-	                this._updatables.add(entity);
-	            }
-	            if (entity.constructor[_decoratorsEntityDescriptions.Symbols.renderable]) {
-	                this._renderables.add(entity);
-	            }
-	            if (entity.constructor[_decoratorsEntityDescriptions.Symbols.boundable]) {
-	                if (this._boundingGroups.has(entity.constructor[_decoratorsEntityDescriptions.Symbols.boundable])) {
-	                    this._boundingGroups.get(entity.constructor[_decoratorsEntityDescriptions.Symbols.boundable]).add(entity);
-	                } else {
-	                    console.warn('Bounding group \'' + entity.getBoundingBox.boundingGroup + '\' is not defined for this game');
-	                }
-	            }
-	            return this;
-	        }
-	    }, {
-	        key: 'removeEntity',
-	        value: function removeEntity(entity) {
-	            var _this2 = this;
-	
-	            [this._entities, this._updatables, this._renderables].concat((function () {
-	                var _concat = [];
-	                var _iteratorNormalCompletion2 = true;
-	                var _didIteratorError2 = false;
-	                var _iteratorError2 = undefined;
-	
-	                try {
-	                    for (var _iterator2 = _this2._boundingGroups.values()[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-	                        var group = _step2.value;
-	
-	                        _concat.push(group);
-	                    }
-	                } catch (err) {
-	                    _didIteratorError2 = true;
-	                    _iteratorError2 = err;
-	                } finally {
-	                    try {
-	                        if (!_iteratorNormalCompletion2 && _iterator2['return']) {
-	                            _iterator2['return']();
-	                        }
-	                    } finally {
-	                        if (_didIteratorError2) {
-	                            throw _iteratorError2;
-	                        }
-	                    }
-	                }
-	
-	                return _concat;
-	            })()).forEach(function (set) {
-	                set['delete'](entity);
-	            });
-	        }
-	    }, {
+	    _createClass(Camera, [{
 	        key: 'update',
-	        value: function update(delta) {
-	            var _this3 = this;
-	
-	            this._updatables.forEach(function (updatable) {
-	                if (_this3.gameLogic.state.gameRunning) {
-	                    updatable.update(delta, _this3._boundingGroups, _this3.gameLogic);
-	                }
-	            });
-	
-	            this.camera.update(delta);
-	        }
-	    }, {
-	        key: 'render',
-	        value: function render(globalTime) {
-	            var _this4 = this;
-	
-	            this.context.save();
-	
-	            this.context.fillStyle = 'hsl(0, 0%, 99%)';
-	            this.context.fillRect(0, 0, this.context.canvas.width, this.context.canvas.height);
-	
-	            this.context.translate(this.camera.position.x, this.camera.position.y);
-	
-	            this._renderables.forEach(function (renderable) {
-	                _this4.context.save();
-	                renderable.render(_this4.context, globalTime, _this4._transformPointToRender);
-	                _this4.context.restore();
-	            });
-	
-	            this.context.restore();
-	        }
-	    }, {
-	        key: 'worldInfo',
-	        get: function get() {
-	            return {
-	                height: this.context.canvas.height,
-	                width: this.context.canvas.width
-	            };
-	        }
+	        value: function update(delta) {}
 	    }]);
 	
-	    return GameCore;
+	    return Camera;
 	})();
 	
-	exports.GameCore = GameCore;
-	
-	var GameLoop = (function () {
-	    function GameLoop(gameCore) {
-	        _classCallCheck(this, GameLoop);
-	
-	        this.gameCore = gameCore;
-	        this._lastUpdateTime = 0;
-	
-	        this.running = false;
-	        this._interval = null;
-	    }
-	
-	    _createClass(GameLoop, [{
-	        key: 'update',
-	        value: function update() {
-	            if (this._lastUpdateTime == 0) {
-	                this._lastUpdateTime = now();
-	            }
-	            var _now = now();
-	            var delta = _now - this._lastUpdateTime;
-	            this._lastUpdateTime = _now;
-	
-	            this.gameCore.update(delta);
-	        }
-	    }, {
-	        key: 'render',
-	        value: function render() {
-	            this.gameCore.render(this._lastUpdateTime);
-	        }
-	    }, {
-	        key: 'startLoop',
-	        value: function startLoop() {
-	            var _this5 = this;
-	
-	            this.running = true;
-	            this._interval = setInterval(function () {
-	                _this5.update();
-	                _this5.render();
-	            }, 1);
-	        }
-	    }, {
-	        key: 'pauseLoop',
-	        value: function pauseLoop() {
-	            this.running = false;
-	            clearInterval(this._interval);
-	        }
-	    }]);
-	
-	    return GameLoop;
-	})();
-	
-	exports.GameLoop = GameLoop;
+	exports['default'] = Camera;
+	module.exports = exports['default'];
 
 /***/ },
 /* 100 */
-/***/ function(module, exports) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, '__esModule', {
-	    value: true
-	});
-	exports.Updatable = Updatable;
-	exports.Renderable = Renderable;
-	exports.Boundable = Boundable;
-	var Symbols = {
-	    updatable: Symbol('updatable'),
-	    renderable: Symbol('renderable'),
-	    //That can't be a word...
-	    boundable: Symbol('boundable')
-	};
-	
-	exports.Symbols = Symbols;
-	
-	function Updatable(target) {
-	    target[Symbols.updatable] = true;
-	}
-	
-	function Renderable(target) {
-	    target[Symbols.renderable] = true;
-	}
-	
-	function Boundable(boundableGroup) {
-	    return function (target) {
-	        target[Symbols.boundable] = boundableGroup;
-	    };
-	}
-
-/***/ },
-/* 101 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -4925,76 +4890,112 @@
 	    value: true
 	});
 	
+	var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+	
 	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; }
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
-	var Channel = (function () {
-	    function Channel() {
-	        _classCallCheck(this, Channel);
+	var Vector2d = (function () {
+	    function Vector2d(obj) {
+	        _classCallCheck(this, Vector2d);
 	
-	        this._listeners = [];
+	        if (obj.x != null) {
+	            this.x = obj.x;
+	        }
+	        if (obj.y != null) {
+	            this.y = obj.y;
+	        }
+	
+	        if (this.x == null || this.y == null) {
+	            //TODO(wg): this is the most shameful error message I have come up with, but
+	            //I just cannot bring myself to think of a better one right now, I'm so sorry
+	            throw new TypeError("Wrong!");
+	        }
 	    }
 	
-	    _createClass(Channel, [{
-	        key: "subscribe",
-	        value: function subscribe(cb) {
-	            this._listeners.push(cb);
+	    _createClass(Vector2d, [{
+	        key: "copy",
+	
+	        /**
+	         * Returns a new instance of the current vector instance, which holds no references to the current one.
+	         * @return {Vector2d} 
+	         */
+	        value: function copy() {
+	            return new Vector2d({
+	                x: this.x,
+	                y: this.y
+	            });
 	        }
 	    }, {
-	        key: "publish",
-	        value: function publish(data) {
-	            var _iteratorNormalCompletion = true;
-	            var _didIteratorError = false;
-	            var _iteratorError = undefined;
+	        key: "add",
 	
-	            try {
-	                for (var _iterator = this._listeners[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-	                    var listener = _step.value;
-	
-	                    listener(data);
-	                }
-	            } catch (err) {
-	                _didIteratorError = true;
-	                _iteratorError = err;
-	            } finally {
-	                try {
-	                    if (!_iteratorNormalCompletion && _iterator["return"]) {
-	                        _iterator["return"]();
-	                    }
-	                } finally {
-	                    if (_didIteratorError) {
-	                        throw _iteratorError;
-	                    }
-	                }
-	            }
+	        /**
+	         * Returns a new instance representing the current vector instance added to another vector instance.
+	         * @param {Vector2d} toAdd 
+	         */
+	        value: function add(toAdd) {
+	            return new Vector2d({
+	                x: this.x + toAdd.x,
+	                y: this.y + toAdd.y
+	            });
 	        }
 	    }]);
 	
-	    return Channel;
+	    return Vector2d;
 	})();
 	
-	exports["default"] = Channel;
-	module.exports = exports["default"];
+	exports.Vector2d = Vector2d;
+	
+	var Size2d = (function (_Vector2d) {
+	    function Size2d(obj) {
+	        _classCallCheck(this, Size2d);
+	
+	        _get(Object.getPrototypeOf(Size2d.prototype), "constructor", this).call(this, {
+	            x: obj.width,
+	            y: obj.height
+	        });
+	    }
+	
+	    _inherits(Size2d, _Vector2d);
+	
+	    _createClass(Size2d, [{
+	        key: "height",
+	        get: function get() {
+	            return this.y;
+	        }
+	    }, {
+	        key: "width",
+	        get: function get() {
+	            return this.x;
+	        }
+	    }]);
+	
+	    return Size2d;
+	})(Vector2d);
+	
+	exports.Size2d = Size2d;
 
 /***/ },
-/* 102 */
+/* 101 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 	
 	// load the styles
-	var content = __webpack_require__(103);
+	var content = __webpack_require__(102);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
-	var update = __webpack_require__(105)(content, {});
+	var update = __webpack_require__(104)(content, {});
 	if(content.locals) module.exports = content.locals;
 	// Hot Module Replacement
 	if(false) {
 		// When the styles change, update the <style> tags
 		if(!content.locals) {
-			module.hot.accept("!!./node_modules/css-loader/index.js!./global.css", function() {
-				var newContent = require("!!./node_modules/css-loader/index.js!./global.css");
+			module.hot.accept("!!./../node_modules/css-loader/index.js!./global.css", function() {
+				var newContent = require("!!./../node_modules/css-loader/index.js!./global.css");
 				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
 				update(newContent);
 			});
@@ -5004,21 +5005,21 @@
 	}
 
 /***/ },
-/* 103 */
+/* 102 */
 /***/ function(module, exports, __webpack_require__) {
 
-	exports = module.exports = __webpack_require__(104)();
+	exports = module.exports = __webpack_require__(103)();
 	// imports
 	
 	
 	// module
-	exports.push([module.id, "body {\n    background-color: hsl(0, 0%, 90%);\n}\n\n.main-handle {\n    text-align: center;\n}", ""]);
+	exports.push([module.id, "body {\n    background-color: hsl(0, 0%, 90%);\n}\n\n#main-handle {\n    text-align: center;\n}", ""]);
 	
 	// exports
 
 
 /***/ },
-/* 104 */
+/* 103 */
 /***/ function(module, exports) {
 
 	/*
@@ -5074,7 +5075,7 @@
 
 
 /***/ },
-/* 105 */
+/* 104 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*
@@ -5299,23 +5300,23 @@
 
 
 /***/ },
-/* 106 */
+/* 105 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 	
 	// load the styles
-	var content = __webpack_require__(107);
+	var content = __webpack_require__(106);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
-	var update = __webpack_require__(105)(content, {});
+	var update = __webpack_require__(104)(content, {});
 	if(content.locals) module.exports = content.locals;
 	// Hot Module Replacement
 	if(false) {
 		// When the styles change, update the <style> tags
 		if(!content.locals) {
-			module.hot.accept("!!./node_modules/css-loader/index.js!./canvas.css", function() {
-				var newContent = require("!!./node_modules/css-loader/index.js!./canvas.css");
+			module.hot.accept("!!./../node_modules/css-loader/index.js!./canvas.css", function() {
+				var newContent = require("!!./../node_modules/css-loader/index.js!./canvas.css");
 				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
 				update(newContent);
 			});
@@ -5325,10 +5326,10 @@
 	}
 
 /***/ },
-/* 107 */
+/* 106 */
 /***/ function(module, exports, __webpack_require__) {
 
-	exports = module.exports = __webpack_require__(104)();
+	exports = module.exports = __webpack_require__(103)();
 	// imports
 	
 	
@@ -5339,7 +5340,7 @@
 
 
 /***/ },
-/* 108 */
+/* 107 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -5358,22 +5359,32 @@
 	
 	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; }
 	
-	var _EntityInterface = __webpack_require__(109);
+	var _EntityInterface = __webpack_require__(108);
 	
 	var _EntityInterface2 = _interopRequireDefault(_EntityInterface);
 	
-	var _core = __webpack_require__(99);
+	var _core = __webpack_require__(109);
 	
-	var _libVector2d = __webpack_require__(110);
+	var _libVector2d = __webpack_require__(100);
 	
-	var _libBoundingBox = __webpack_require__(111);
+	var _libBoundingBox = __webpack_require__(112);
 	
 	var _libBoundingBox2 = _interopRequireDefault(_libBoundingBox);
 	
-	var _decoratorsEntityDescriptions = __webpack_require__(100);
+	var _decoratorsEntityDescriptions = __webpack_require__(110
+	
+	/**
+	 * Represents a player in the game world which the user controls.
+	 */
+	);
 	
 	var Player = (function (_Entity) {
-	    function Player(worldInfo, keyState) {
+	    /**
+	     * Player constructor
+	     * @param  {KeyState} keyState  KeyState instance which the player intance will use for the current key-state
+	     */
+	
+	    function Player(keyState) {
 	        _classCallCheck(this, _Player);
 	
 	        _get(Object.getPrototypeOf(_Player.prototype), 'constructor', this).call(this);
@@ -5398,6 +5409,9 @@
 	        });
 	
 	        this.keyState = keyState;
+	
+	        this.personalCanvas = document.createElement('canvas');
+	        this.oldPosition = this.position;
 	    }
 	
 	    _inherits(Player, _Entity);
@@ -5417,6 +5431,11 @@
 	        }
 	    }, {
 	        key: '_checkCollisions',
+	
+	        /**
+	         * Checks the collisions for the player instance, and will signal on the GameLogic instance if the player has collided 
+	         * with an obstacle. If the player has collided with an obstacle then this function returns true immediately after triggering an event on GameLogic.
+	         */
 	        value: function _checkCollisions(BoundingMap, gameLogic) {
 	            var _iteratorNormalCompletion = true;
 	            var _didIteratorError = false;
@@ -5428,7 +5447,7 @@
 	
 	                    if (_libBoundingBox2['default'].isCollision(this.getBoundingBox(), entity.getBoundingBox())) {
 	                        gameLogic.events.playerHitBlock.publish();
-	                        return;
+	                        return true;
 	                    }
 	                }
 	            } catch (err) {
@@ -5445,38 +5464,81 @@
 	                    }
 	                }
 	            }
+	
+	            return false;
 	        }
 	    }, {
 	        key: 'update',
 	        value: function update(delta, BoundingMap, gameLogic) {
 	
-	            this._checkCollisions(BoundingMap, gameLogic);
+	            if (!this._checkCollisions(BoundingMap, gameLogic)) {
+	                if (this.position.y <= 0) {
+	                    this.velocity.y = 0;
 	
-	            if (this.position.y <= 0) {
-	                this.velocity.y = 0;
-	
-	                if (this.keyState.get('up_arrow')) {
-	                    this.velocity.y = 400;
+	                    if (this.keyState.get('up_arrow')) {
+	                        this.velocity.y = 400;
+	                    }
+	                } else {
+	                    this.velocity.y += this.acceleration.y * (delta / 1000);
 	                }
-	            } else {
-	                this.velocity.y += this.acceleration.y * (delta / 1000);
-	            }
 	
-	            this.position.x += this.velocity.x * (delta / 1000);
-	            this.position.y += this.velocity.y * (delta / 1000);
+	                this.oldPosition = this.position.copy();
+	
+	                this.position.x += this.velocity.x * (delta / 1000);
+	                this.position.y += this.velocity.y * (delta / 1000);
+	            }
 	        }
 	    }, {
 	        key: 'render',
-	        value: function render(context, globalTime, applyScreenTransform) {
-	            var ctxWidth = context.canvas.width;
-	            var ctxHeight = context.canvas.height;
+	        value: function render(context, globalTime, applyScreenTransform, applyCameraTransform) {
 	
+	            var mixingCanvas = document.createElement('canvas');
+	            mixingCanvas.width = context.canvas.width;
+	            mixingCanvas.height = context.canvas.height;
+	            var mixingContext = mixingCanvas.getContext('2d');
+	
+	            /**
+	             * Displays nice trails:
+	             * 
+	             * this.personalCanvas holds the player rendering we did last last pass of the render loop.
+	             *
+	             * Since we want to have nice trails behind the player, we have to move the last rendering
+	             * back to the last frame (by moving -(difference between current position and last frame's position))
+	             * and then render the last frame rendering (this.personalCanvas) in to our current frame
+	             * rendering (mixingContext).
+	             */
+	            mixingContext.save();
+	
+	            applyScreenTransform(mixingContext, new _libVector2d.Vector2d({ x: -(this.position.x - this.oldPosition.x), y: 0 }), new _libVector2d.Size2d({ width: mixingCanvas.width, height: mixingCanvas.height }));
+	            mixingContext.globalAlpha = 0.93;
+	            mixingContext.drawImage(this.personalCanvas, 0, 0);
+	
+	            mixingContext.restore();
+	
+	            /**
+	             * Renders the actual player sprite for this frame.
+	             */
+	            mixingContext.save();
+	
+	            applyCameraTransform(mixingContext);
+	            applyScreenTransform(mixingContext, this.position, this.size);
+	
+	            //Changing colour over time
 	            var hue = (Math.sin(globalTime / 6000 * Math.PI) + 1) * 360;
 	
-	            applyScreenTransform(this.position, this.size);
+	            mixingContext.fillStyle = 'hsl(' + hue + ', 30%, 70%)';
+	            mixingContext.fillRect(0, 0, this.size.width, this.size.height);
 	
-	            context.fillStyle = 'hsl(' + hue + ', 30%, 70%)';
-	            context.fillRect(0, 0, this.size.width, this.size.height);
+	            mixingContext.restore();
+	
+	            context.drawImage(mixingCanvas, 0, 0);
+	
+	            /**
+	             * Since we have rendered this frame's sprite in to this frame's rendering and we
+	             * have nothing else to render, we swap the last frame's rendering with this one,
+	             * since the next time render is run this will have been the last frame's rendering.
+	             */
+	            this.personalCanvas = mixingCanvas;
 	        }
 	    }]);
 	
@@ -5490,7 +5552,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 109 */
+/* 108 */
 /***/ function(module, exports) {
 
 	
@@ -5500,7 +5562,7 @@
 	"use strict";
 	
 	Object.defineProperty(exports, "__esModule", {
-	  value: true
+	    value: true
 	});
 	
 	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
@@ -5508,42 +5570,62 @@
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
 	var Entity = (function () {
-	  function Entity() {
-	    _classCallCheck(this, Entity);
-	  }
+	    function Entity() {
+	        _classCallCheck(this, Entity);
+	    }
 	
-	  _createClass(Entity, [{
-	    key: "update",
+	    _createClass(Entity, [{
+	        key: "update",
 	
-	    /**
-	     * Constructor is left entirely up to the implementing class to decide the signature. 
-	     */
+	        /**
+	         * Constructor is left entirely up to the implementing class to decide the signature. 
+	         */
 	
-	    /**
-	     * Called every pass through the update loop, usually at least once per frame. Don't presume
-	     * any ordering of the update and render methods, this method should leave the object in a consistent state. 
-	     * @param  {Number} delta Milliseconds since last call of #update
-	     * @return {void}       
-	     */
-	    value: function update(delta) {}
-	  }, {
-	    key: "render",
+	        /**
+	         * Called every pass through the update loop, usually at least once per frame. Don't presume
+	         * any ordering of the update and render methods, this method should leave the object in a consistent state. 
+	         * @param  {Number} delta Milliseconds since last call of #update
+	         * @return {void}       
+	         */
+	        value: function update(delta) {}
+	    }, {
+	        key: "render",
 	
-	    /**
-	     * Called every pass through the render loop, exactly once per frame (obviously). Don't presume
-	     * any ordering of the update and render methods, this method should leave the object in a consistent
-	     * state and should not contain any logic to change the object beyond rendering it.
-	     * @param  {CanvasRenderingContext2D} context              The context to render the object to
-	     * @param  {Number} globalTime           Elapsed time since the start of the game
-	     * @param  {(position, size) => void} applyScreenTransform applies a screen transformation to the render context
-	     * to move the context in to a state that game coordinates can be applied to. This should be called before
-	     * rendering any points using game/world-coordinates
-	     * @return {void}                      
-	     */
-	    value: function render(context, globalTime, applyScreenTransform) {}
-	  }]);
+	        /**
+	         * Called every pass through the render loop, exactly once per frame (obviously). Don't presume
+	         * any ordering of the update and render methods, this method should leave the object in a consistent
+	         * state and should not contain any logic to change the object beyond rendering it.
+	         * @param  {CanvasRenderingContext2D} context              The context to render the object to
+	         * @param  {Number} globalTime           Elapsed time since the start of the game
+	         * @param  {(CanvasRenderingContext2D, position, size) => void} applyScreenTransform Applies a screen transformation to the render context
+	         * to move the context in to a state that game coordinates can be applied to. This should be called before
+	         * rendering any points using game/world-coordinates
+	         * @param  {(CanvasRenderingContext2D) => void} applyCameraTransform Applies a camera transformation to the render context
+	         * to move the context in to a state that game coordinates can be applied to relative to the camera. This should be called before
+	         * rendering any points using game/world-coordinates
+	         * @return {void}                      
+	         */
+	        value: function render(context, globalTime, applyScreenTransform, applyCameraTransform) {}
+	    }, {
+	        key: "getBoundingBox",
 	
-	  return Entity;
+	        /**
+	         * Returns an axis-aligned bounding box for the object, up to the inheriting class to decide
+	         * how that should be made. This can be called at any time after initialization, so beware.
+	         * @return {BoundingBox} BoundingBox instance for the instance
+	         */
+	        value: function getBoundingBox() {
+	            return new BoundingBox(new vec2({
+	                x: this.position.x,
+	                y: this.position.y + this.size.height
+	            }), new vec2({
+	                x: this.position.x + this.size.width,
+	                y: this.position.y
+	            }));
+	        }
+	    }]);
+	
+	    return Entity;
 	})();
 	
 	exports["default"] = Entity;
@@ -5560,95 +5642,7 @@
 	 */
 
 /***/ },
-/* 110 */
-/***/ function(module, exports) {
-
-	"use strict";
-	
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-	
-	var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-	
-	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-	
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; }
-	
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-	
-	var Vector2d = (function () {
-	    function Vector2d(obj) {
-	        _classCallCheck(this, Vector2d);
-	
-	        if (obj.x != null) {
-	            this.x = obj.x;
-	        }
-	        if (obj.y != null) {
-	            this.y = obj.y;
-	        }
-	
-	        if (this.x == null || this.y == null) {
-	            //TODO(wg): this is the most shameful error message I have come up with, but
-	            //I just cannot bring myself to think of a better one right now, I'm so sorry
-	            throw new TypeError("Wrong!");
-	        }
-	    }
-	
-	    _createClass(Vector2d, [{
-	        key: "copy",
-	        value: function copy() {
-	            return new Vector2d({
-	                x: this.x,
-	                y: this.y
-	            });
-	        }
-	    }, {
-	        key: "add",
-	        value: function add(toAdd) {
-	            return new Vector2d({
-	                x: this.x + toAdd.x,
-	                y: this.y + toAdd.y
-	            });
-	        }
-	    }]);
-	
-	    return Vector2d;
-	})();
-	
-	exports.Vector2d = Vector2d;
-	
-	var Size2d = (function (_Vector2d) {
-	    function Size2d(obj) {
-	        _classCallCheck(this, Size2d);
-	
-	        _get(Object.getPrototypeOf(Size2d.prototype), "constructor", this).call(this, {
-	            x: obj.width,
-	            y: obj.height
-	        });
-	    }
-	
-	    _inherits(Size2d, _Vector2d);
-	
-	    _createClass(Size2d, [{
-	        key: "height",
-	        get: function get() {
-	            return this.y;
-	        }
-	    }, {
-	        key: "width",
-	        get: function get() {
-	            return this.x;
-	        }
-	    }]);
-	
-	    return Size2d;
-	})(Vector2d);
-	
-	exports.Size2d = Size2d;
-
-/***/ },
-/* 111 */
+/* 109 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -5663,11 +5657,457 @@
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 	
-	var _Vector2d = __webpack_require__(110);
+	var _decoratorsEntityDescriptions = __webpack_require__(110);
+	
+	var _libChannel = __webpack_require__(111);
+	
+	var _libChannel2 = _interopRequireDefault(_libChannel);
+	
+	/**
+	 * Returns the current time in milliseconds. Not a high performance timer.
+	 * @return {number} The current time in milliseconds
+	 */
+	function now() {
+	    var _nowDate = new Date();
+	    return _nowDate.getTime();
+	}
+	
+	var BoundingGroupNames = {
+	    Player: Symbol('Player'),
+	    Blocks: Symbol('Blocks'),
+	    UNKNOWN: Symbol('UNKNOWN')
+	};
+	
+	exports.BoundingGroupNames = BoundingGroupNames;
+	/**
+	 * Very stateful class for holding game logic. Put all your state in here please.
+	 */
+	
+	var GameLogic = function GameLogic() {
+	    _classCallCheck(this, GameLogic);
+	
+	    this.events = {
+	        playerHitBlock: new _libChannel2['default'](),
+	        shouldLoadNextZone: new _libChannel2['default']()
+	    };
+	
+	    this.constants = {
+	        //TODO(wg): Just gonna use 2 for now for testing, should be random at some point
+	        seed: 2
+	    };
+	
+	    this.state = {
+	        gameRunning: false
+	    };
+	};
+	
+	exports.GameLogic = GameLogic;
+	
+	/**
+	 * Core engine-ish class for the game. Handles the holding of entities, calling update and render
+	 * on those entities, and describing/coralling the current game.
+	 */
+	
+	var GameCore = (function () {
+	    /**
+	     * Constructor method for GameCore
+	     * @param  {CanvasRenderingContext2D} context   The rendering context for the game
+	     * @param  {Camera} camera    A camera instance for the game
+	     * @param  {GameLogic} gameLogic Game logic instance for the game
+	     */
+	
+	    function GameCore(context, camera, gameLogic) {
+	        var _this = this;
+	
+	        _classCallCheck(this, GameCore);
+	
+	        this.context = context;
+	        this.camera = camera;
+	        this.gameLogic = gameLogic;
+	
+	        this._entities = new Set();
+	        this._updatables = new Set();
+	        this._renderables = new Set();
+	
+	        this._boundingGroups = new Map();
+	
+	        //Sets up Set objects for each bounding group defined in the BoundingGroupNames enum
+	        var _iteratorNormalCompletion = true;
+	        var _didIteratorError = false;
+	        var _iteratorError = undefined;
+	
+	        try {
+	            for (var _iterator = Object.keys(BoundingGroupNames)[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+	                var _name = _step.value;
+	
+	                this._boundingGroups.set(BoundingGroupNames[_name], new Set());
+	            }
+	        } catch (err) {
+	            _didIteratorError = true;
+	            _iteratorError = err;
+	        } finally {
+	            try {
+	                if (!_iteratorNormalCompletion && _iterator['return']) {
+	                    _iterator['return']();
+	                }
+	            } finally {
+	                if (_didIteratorError) {
+	                    throw _iteratorError;
+	                }
+	            }
+	        }
+	
+	        /**
+	         * Sets the function to transform points for rendering. This is passed to the game's
+	         * render loop
+	         * @param  {CanvasRenderingContext2D} context The context to transform
+	         * @param  {Vector2d} position 
+	         * @param  {Size2d} size     
+	         */
+	        this._transformPointToRender = function (context, position, size) {
+	            var renderCoordinates = {
+	                y: _this.worldInfo.height - size.height - position.y,
+	                x: position.x
+	            };
+	            context.translate(renderCoordinates.x, renderCoordinates.y);
+	        };
+	
+	        /**
+	         * Sets the function to transform a context to the camera's view for rendering. 
+	         * This is passed to the game's render loop
+	         * @param  {CanvasRenderingContext2D} context The context to transform
+	         * @param  {Size2d} size     
+	         */
+	        this._cameraTransform = function (context) {
+	            //Camera transform
+	            context.translate(_this.camera.position.x, _this.camera.position.y);
+	        };
+	    }
+	
+	    _createClass(GameCore, [{
+	        key: 'addEntity',
+	        value: function addEntity(entity) {
+	            this._entities.add(entity);
+	            if (entity[_decoratorsEntityDescriptions.Symbols.updatable]) {
+	                this._updatables.add(entity);
+	            }
+	            if (entity[_decoratorsEntityDescriptions.Symbols.renderable]) {
+	                this._renderables.add(entity);
+	            }
+	            if (entity[_decoratorsEntityDescriptions.Symbols.boundable]) {
+	                if (this._boundingGroups.has(entity[_decoratorsEntityDescriptions.Symbols.boundable])) {
+	                    this._boundingGroups.get(entity[_decoratorsEntityDescriptions.Symbols.boundable]).add(entity);
+	                } else {
+	                    console.warn('Bounding group \'' + entity.getBoundingBox.boundingGroup + '\' is not defined for this game');
+	                }
+	            }
+	            return this;
+	        }
+	    }, {
+	        key: 'removeEntity',
+	        value: function removeEntity(entity) {
+	            var _this2 = this;
+	
+	            [this._entities, this._updatables, this._renderables].concat((function () {
+	                var _concat = [];
+	                var _iteratorNormalCompletion2 = true;
+	                var _didIteratorError2 = false;
+	                var _iteratorError2 = undefined;
+	
+	                try {
+	                    for (var _iterator2 = _this2._boundingGroups.values()[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+	                        var group = _step2.value;
+	
+	                        _concat.push(group);
+	                    }
+	                } catch (err) {
+	                    _didIteratorError2 = true;
+	                    _iteratorError2 = err;
+	                } finally {
+	                    try {
+	                        if (!_iteratorNormalCompletion2 && _iterator2['return']) {
+	                            _iterator2['return']();
+	                        }
+	                    } finally {
+	                        if (_didIteratorError2) {
+	                            throw _iteratorError2;
+	                        }
+	                    }
+	                }
+	
+	                return _concat;
+	            })()).forEach(function (set) {
+	                set['delete'](entity);
+	            });
+	        }
+	    }, {
+	        key: 'update',
+	
+	        /**
+	         * Updates the game and calls the update loop on added entities
+	         * @param  {number} delta Time in milliseconds since the last call of update
+	         */
+	        value: function update(delta) {
+	            var _this3 = this;
+	
+	            this._updatables.forEach(function (updatable) {
+	                if (_this3.gameLogic.state.gameRunning) {
+	                    updatable.update(delta, _this3._boundingGroups, _this3.gameLogic);
+	                }
+	            });
+	
+	            this.camera.update(delta);
+	        }
+	    }, {
+	        key: 'render',
+	
+	        /**
+	         * Renders the game and calls the render loop on added entities
+	         * @param  {number} globalTime Elapsed time since the start of the game
+	         */
+	        value: function render(globalTime) {
+	            var _this4 = this;
+	
+	            this.context.save();
+	
+	            //Clearing the screen
+	            this.context.fillStyle = 'hsl(0, 0%, 99%)';
+	            this.context.fillRect(0, 0, this.context.canvas.width, this.context.canvas.height);
+	
+	            this._renderables.forEach(function (renderable) {
+	                _this4.context.save();
+	                renderable.render(_this4.context, globalTime, _this4._transformPointToRender, _this4._cameraTransform);
+	                _this4.context.restore();
+	            });
+	
+	            this.context.restore();
+	        }
+	    }, {
+	        key: 'worldInfo',
+	        get: function get() {
+	            return {
+	                height: this.context.canvas.height,
+	                width: this.context.canvas.width
+	            };
+	        }
+	    }]);
+	
+	    return GameCore;
+	})();
+	
+	exports.GameCore = GameCore;
+	
+	/**
+	 * Class for handling the continuous loop of a game.
+	 */
+	
+	var GameLoop = (function () {
+	    function GameLoop(gameCore) {
+	        _classCallCheck(this, GameLoop);
+	
+	        this.gameCore = gameCore;
+	        this._lastUpdateTime = 0;
+	
+	        this.running = false;
+	        this._interval = null;
+	    }
+	
+	    _createClass(GameLoop, [{
+	        key: 'update',
+	        value: function update() {
+	            if (this._lastUpdateTime == 0) {
+	                this._lastUpdateTime = now();
+	            }
+	            var _now = now();
+	            var delta = _now - this._lastUpdateTime;
+	            this._lastUpdateTime = _now;
+	
+	            this.gameCore.update(delta);
+	        }
+	    }, {
+	        key: 'render',
+	        value: function render() {
+	            this.gameCore.render(this._lastUpdateTime);
+	        }
+	    }, {
+	        key: 'tick',
+	        value: function tick() {
+	            this.update();
+	            this.render();
+	        }
+	    }, {
+	        key: 'startLoop',
+	
+	        /**
+	         * Starts or resumes the game loop and continuously calls #update and #render on the attached
+	         * GameCore until paused.
+	         */
+	        value: function startLoop() {
+	            var _this5 = this;
+	
+	            this.running = true;
+	            this._interval = setInterval(function () {
+	                _this5.tick();
+	            }, 1);
+	        }
+	    }, {
+	        key: 'pauseLoop',
+	
+	        /**
+	         * Pauses the game loop, can be resumed with #startLoop
+	         */
+	        value: function pauseLoop() {
+	            this.running = false;
+	            clearInterval(this._interval);
+	        }
+	    }]);
+	
+	    return GameLoop;
+	})();
+	
+	exports.GameLoop = GameLoop;
+
+/***/ },
+/* 110 */
+/***/ function(module, exports) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, '__esModule', {
+	    value: true
+	});
+	exports.Updatable = Updatable;
+	exports.Renderable = Renderable;
+	exports.Boundable = Boundable;
+	var Symbols = {
+	    updatable: Symbol('updatable'),
+	    renderable: Symbol('renderable'),
+	    //That can't be a word...
+	    boundable: Symbol('boundable')
+	};
+	
+	exports.Symbols = Symbols;
+	/**
+	 * Marks a class as being able to be updated in a GameCore instance
+	 */
+	
+	function Updatable(target) {
+	    target.prototype[Symbols.updatable] = true;
+	}
+	
+	/**
+	 * Marks a class as being able to be renderable in a GameCore instance
+	 */
+	
+	function Renderable(target) {
+	    target.prototype[Symbols.renderable] = true;
+	}
+	
+	/**
+	 * Marks a class as being able to be collided against in a GameCore instance.
+	 * Needs to be called with a valid bounding group identifier, identifying which
+	 * bounding group this class should belong to. 
+	 */
+	
+	function Boundable(boundableGroup) {
+	    return function (target) {
+	        target.prototype[Symbols.boundable] = boundableGroup;
+	    };
+	}
+
+/***/ },
+/* 111 */
+/***/ function(module, exports) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	
+	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	var Channel = (function () {
+	    function Channel() {
+	        _classCallCheck(this, Channel);
+	
+	        this._listeners = [];
+	    }
+	
+	    _createClass(Channel, [{
+	        key: "subscribe",
+	        value: function subscribe(cb) {
+	            this._listeners.push(cb);
+	        }
+	    }, {
+	        key: "publish",
+	        value: function publish(data) {
+	            var _iteratorNormalCompletion = true;
+	            var _didIteratorError = false;
+	            var _iteratorError = undefined;
+	
+	            try {
+	                for (var _iterator = this._listeners[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+	                    var listener = _step.value;
+	
+	                    listener(data);
+	                }
+	            } catch (err) {
+	                _didIteratorError = true;
+	                _iteratorError = err;
+	            } finally {
+	                try {
+	                    if (!_iteratorNormalCompletion && _iterator["return"]) {
+	                        _iterator["return"]();
+	                    }
+	                } finally {
+	                    if (_didIteratorError) {
+	                        throw _iteratorError;
+	                    }
+	                }
+	            }
+	        }
+	    }]);
+	
+	    return Channel;
+	})();
+	
+	exports["default"] = Channel;
+	module.exports = exports["default"];
+
+/***/ },
+/* 112 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, '__esModule', {
+	    value: true
+	});
+	
+	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+	
+	var _Vector2d = __webpack_require__(100);
 	
 	var _Vector2d2 = _interopRequireDefault(_Vector2d);
 	
+	/**
+	 * Represents an axis-aligned bounding box
+	 */
+	
 	var BoundingBox = (function () {
+	    /**
+	     * BoundingBox constructor
+	     * @param  {Vector2d} topLeft     top left point of the bounding box
+	     * @param  {Vector2d} bottomRight bottom right point of the bounding box
+	     */
+	
 	    function BoundingBox(topLeft, bottomRight) {
 	        _classCallCheck(this, BoundingBox);
 	
@@ -5697,6 +6137,13 @@
 	        }
 	    }], [{
 	        key: 'isCollision',
+	
+	        /**
+	         * Returns true if there is a collision between two boxes, false otherwise.
+	         * @param  {BoundingBox}  box1 
+	         * @param  {BoundingBox}  box2 
+	         * @return {Boolean}      
+	         */
 	        value: function isCollision(box1, box2) {
 	            var xCollision = false;
 	            var yCollision = false;
@@ -5731,7 +6178,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 112 */
+/* 113 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -5754,22 +6201,33 @@
 	
 	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; }
 	
-	var _EntityInterface = __webpack_require__(109);
+	var _EntityInterface = __webpack_require__(108);
 	
 	var _EntityInterface2 = _interopRequireDefault(_EntityInterface);
 	
-	var _libVector2d = __webpack_require__(110);
+	var _libVector2d = __webpack_require__(100);
 	
-	var _core = __webpack_require__(99);
+	var _core = __webpack_require__(109);
 	
-	var _libBoundingBox = __webpack_require__(111);
+	var _libBoundingBox = __webpack_require__(112);
 	
 	var _libBoundingBox2 = _interopRequireDefault(_libBoundingBox);
 	
-	var _decoratorsEntityDescriptions = __webpack_require__(100);
+	var _decoratorsEntityDescriptions = __webpack_require__(110
+	
+	/**
+	 * Represents an obstacle in the game world which the player has to avoid or the game ends.
+	 */
+	);
 	
 	var Obstacle = (function (_Entity) {
-	    function Obstacle(worldInfo, size, position) {
+	    /**
+	     * Obstacle constructor
+	     * @param  {Size2d} size      Initial size for the obstacle
+	     * @param  {Vector2d} position  Initial position for the obstacle
+	     */
+	
+	    function Obstacle(size, position) {
 	        _classCallCheck(this, _Obstacle);
 	
 	        _get(Object.getPrototypeOf(_Obstacle.prototype), 'constructor', this).call(this);
@@ -5802,11 +6260,10 @@
 	        }
 	    }, {
 	        key: 'render',
-	        value: function render(context, globalTime, applyScreenTransform) {
-	            var ctxWidth = context.canvas.width;
-	            var ctxHeight = context.canvas.height;
+	        value: function render(context, globalTime, applyScreenTransform, applyCameraTransform) {
+	            applyCameraTransform(context);
 	
-	            applyScreenTransform(this.position, this.size);
+	            applyScreenTransform(context, this.position, this.size);
 	
 	            context.fillStyle = this._colour;
 	            context.fillRect(0, 0, this.size.width, this.size.height);
@@ -5820,6 +6277,15 @@
 	})(_EntityInterface2['default']);
 	
 	exports.Obstacle = Obstacle;
+	
+	/**
+	 * Generator which loads a series of blocks from a JSON list and places it relative in
+	 * the game world based on the given x-offset
+	 * @param {WorldInfo} worldInfo     WorldInfo for the game world that the obstacles will be added to
+	 * @param {Obstacle[]} JsonList      List of obstacle definitions that will be loaded
+	 * @param {number} offsetX       x-offset for the camera position in the world
+	 * @yield {Obstacle} initialized Obstacle instance
+	 */
 	
 	function loadObstaclesFromJson(worldInfo, JsonList, offsetX) {
 	    var _iteratorNormalCompletion, _didIteratorError, _iteratorError, _iterator, _step, obstacleDef;
@@ -5841,7 +6307,7 @@
 	
 	                obstacleDef = _step.value;
 	                context$1$0.next = 9;
-	                return new Obstacle(worldInfo, obstacleDef.size, new _libVector2d.Vector2d({
+	                return new Obstacle(obstacleDef.size, new _libVector2d.Vector2d({
 	                    x: obstacleDef.position.x + offsetX,
 	                    y: obstacleDef.position.y
 	                }));
@@ -5893,9 +6359,12 @@
 	}
 
 /***/ },
-/* 113 */
+/* 114 */
 /***/ function(module, exports) {
 
+	/**
+	 * Holds the state of keys for the game for the current moment in time.
+	 */
 	"use strict";
 	
 	Object.defineProperty(exports, "__esModule", {
@@ -5924,12 +6393,25 @@
 	
 	    _createClass(KeyState, [{
 	        key: "set",
+	
+	        /**
+	         * Sets a given key to the given state
+	         * @param {string} key   Key for the key of which the state if being changed
+	         * @param {boolean} state true if the key is pressed, false otherwise
+	         */
 	        value: function set(key, state) {
 	            this.states[key] = state;
 	            this.dirty = true;
 	        }
 	    }, {
 	        key: "get",
+	
+	        /**
+	         * Returns the state of the given key. Throws an error if the key is not valid for
+	         * this KeyState instance
+	         * @param  {string} key Key for which to return the state of
+	         * @return {boolean}     true if the key is pressed, false otherwise
+	         */
 	        value: function get(key) {
 	            if (this.states[key] == undefined) {
 	                throw new Error("Invalid key provided.");
@@ -5945,9 +6427,15 @@
 	module.exports = exports["default"];
 
 /***/ },
-/* 114 */
+/* 115 */
 /***/ function(module, exports) {
 
+	/**
+	 * Helper function for creating an event handler for binding window input (keypresses) to keyState 
+	 * @param  {KeyState} keyState a keyState object to set the key state of
+	 * @param  {boolean} upOrDown whether this handler is for keyup (true) or keydown (false)
+	 * @return {Function}          Event handler to bind to a keypress event
+	 */
 	'use strict';
 	
 	Object.defineProperty(exports, '__esModule', {
@@ -5986,6 +6474,10 @@
 	    };
 	}
 	
+	/**
+	 * Slim class which binds keydown and keyup events to a KeyState object for a given DOM handle
+	 */
+	
 	var Input = (function () {
 	    function Input(keyState) {
 	        _classCallCheck(this, Input);
@@ -5995,6 +6487,11 @@
 	
 	    _createClass(Input, [{
 	        key: 'listenTo',
+	
+	        /**
+	         * Adds event listeners on the given DOM handle
+	         * @param  {HTMLElement} domHandle DOM element to add the event listeners to
+	         */
 	        value: function listenTo(domHandle) {
 	            domHandle.addEventListener('keydown', makeHandleKeyPresses(this.keyState, true));
 	            domHandle.addEventListener('keyup', makeHandleKeyPresses(this.keyState, false));
@@ -6008,9 +6505,24 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 115 */
+/* 116 */
 /***/ function(module, exports) {
 
+	/**
+	 * Some notes on levels:
+	 *
+	 * They're not so much levels, they're more of block layouts one screen-width wide that are
+	 * put together randomly to form one continuous level.
+	 *
+	 * Assumptions:
+	 *     - screen width is 640
+	 *     - screen height is 240
+	 *
+	 * Good practices:
+	 *     - first block that the player can hit should be at least 160 units in to the level, 
+	 *     just so that there's a nice break between each segment
+	 */
+	
 	"use strict";
 	
 	Object.defineProperty(exports, "__esModule", {
@@ -6080,6 +6592,113 @@
 	    },
 	    position: {
 	        x: 600,
+	        y: 0
+	    }
+	}];
+	module.exports = exports["default"];
+
+/***/ },
+/* 117 */
+/***/ function(module, exports) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports["default"] = [{
+	    //Decoration blocks (for testing):
+	    size: {
+	        height: 30,
+	        width: 30
+	    },
+	    position: {
+	        x: 0,
+	        y: 210
+	    }
+	}, {
+	    size: {
+	        height: 30,
+	        width: 30
+	    },
+	    position: {
+	        x: 160,
+	        y: 210
+	    }
+	}, {
+	    size: {
+	        height: 30,
+	        width: 30
+	    },
+	    position: {
+	        x: 320,
+	        y: 210
+	    }
+	}, {
+	    size: {
+	        height: 30,
+	        width: 30
+	    },
+	    position: {
+	        x: 480,
+	        y: 210
+	    }
+	},
+	//Real blocks start here:
+	{
+	    size: {
+	        height: 40,
+	        width: 15
+	    },
+	    position: {
+	        x: 160,
+	        y: 0
+	    }
+	}, {
+	    size: {
+	        height: 50,
+	        width: 15
+	    },
+	    position: {
+	        x: 180,
+	        y: 0
+	    }
+	}, {
+	    size: {
+	        height: 60,
+	        width: 15
+	    },
+	    position: {
+	        x: 200,
+	        y: 0
+	    }
+	},
+	//
+	{
+	    size: {
+	        height: 60,
+	        width: 15
+	    },
+	    position: {
+	        x: 480,
+	        y: 0
+	    }
+	}, {
+	    size: {
+	        height: 50,
+	        width: 15
+	    },
+	    position: {
+	        x: 500,
+	        y: 0
+	    }
+	}, {
+	    size: {
+	        height: 40,
+	        width: 15
+	    },
+	    position: {
+	        x: 520,
 	        y: 0
 	    }
 	}];
