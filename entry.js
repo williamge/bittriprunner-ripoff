@@ -4,11 +4,7 @@
  */
 
 import * as polyfill from 'babel/polyfill'
-import {
-    debugStage,
-    play
-} from './src/main';
-
+import main from './src/main';
 
 let urlSplit = window.location.href.split('#');
 
@@ -19,6 +15,9 @@ let cvars = {
             enabled: false,
             number: -1
         }
+    },
+    features: {
+        randomBlocks: false
     }
 };
 
@@ -31,8 +30,17 @@ if (urlSplit.length > 1) {
             cvars.debugMode.stage.enabled = true;
             cvars.debugMode.stage.number = Number(parameter.split('=')[1]);
         }
+
+        if (parameter == 'random_blocks') {
+            cvars.features.randomBlocks = true;
+        }
     }
 }
+
+let {
+    debugStage,
+    play
+} = main(cvars);
 
 if (!cvars.debugMode.enabled) {
     play();
