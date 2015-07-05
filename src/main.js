@@ -1,5 +1,6 @@
-import * as __globalcss from './global.css'
-import * as __canvascss from './canvas.css'
+import * as __globalcss from './global.css';
+import * as __canvascss from './canvas.css';
+import * as __gamecss from './game.css';
 
 import {Vector2d as vec2} from './lib/Vector2d';
 
@@ -15,15 +16,14 @@ import Camera from './game/Camera'
 import KeyState from './game/KeyState'
 import Input from './Input'
 
-import level1 from './data/level1'
-import level2 from './data/level2'
+import level1 from './data/level1';
+import level2 from './data/level2';
 
 export default function factory(cvars) {
 
-
+    let mainHandle = document.getElementById('main-handle');
 
     let createMainCanvas = function() {
-        let mainHandle = document.getElementById('main-handle')
 
         let mainCanvas = document.createElement('canvas')
         mainCanvas.classList.add('bordered-canvas');
@@ -109,7 +109,9 @@ export default function factory(cvars) {
         };
     };
 
-    function play(cvars) {
+    function play({
+        onGameOver
+    }) {
 
         let {
             mainCanvas,
@@ -184,7 +186,10 @@ export default function factory(cvars) {
         gameLogic.events.playerHitBlock.subscribe((data) => {
             loop.pauseLoop();
             gameLogic.state.gameRunning = false;
-            alert(`Game Over! Score: ${player.position.x.toFixed(0)}`);
+
+            let score = player.position.x.toFixed(0);
+
+            (onGameOver || function(){})(score);
         })
 
         gameLogic.events.shouldLoadNextZone.subscribe((data) => {
@@ -195,7 +200,38 @@ export default function factory(cvars) {
         //Here we go! Start the game loop and start playing
         gameLogic.state.gameRunning = true;
         loop.startLoop();
+    }
 
+    function playGame({
+        onRestart
+    }) {
+        play({
+            onGameOver: (score) => {
+                let gameOverScreen = document.createElement('div');
+                gameOverScreen.classList.add('game-game_over_screen');
+
+                let gameOverText = document.createElement('h2');
+                gameOverText.textContent = 'Game Over'
+
+                let scoreText = document.createElement('p');
+                scoreText.textContent = `Score: ${score}`;
+
+                let restartButton = document.createElement('button');
+                restartButton.textContent = 'Restart';
+                restartButton.classList.add('game-game_over_screen-button');
+                restartButton.addEventListener('click', onRestart);
+
+                gameOverScreen.appendChild(gameOverText);
+                gameOverScreen.appendChild(scoreText);
+                gameOverScreen.appendChild(restartButton);   
+
+                [].slice.call(mainHandle.children).forEach((child) => {
+                    child.classList.add('game-blurred');
+                });
+
+                mainHandle.appendChild(gameOverScreen);
+            }
+        })
     }
 
     function debugStage(stage) {
@@ -228,7 +264,7 @@ export default function factory(cvars) {
     }
 
     return {
-        play,
+        playGame,
         debugStage
     };
 }

@@ -1,7 +1,21 @@
+/* apply a natural box layout model to all elements, but allowing components to change */
+html {
+  box-sizing: border-box;
+}
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+
 body {
     background-color: hsl(0, 0%, 90%);
+    font-family: 'Lucida Console', Monaco, sans-serif;
+}
+
+#main {
+    text-align: center;
 }
 
 #main-handle {
-    text-align: center;
+    display: inline-block;
+    position: relative;
 }

@@ -39,11 +39,21 @@ if (urlSplit.length > 1) {
 
 let {
     debugStage,
-    play
+    playGame
 } = main(cvars);
 
 if (!cvars.debugMode.enabled) {
-    play();
+
+    let startGame = () => {
+        let mainHandle = document.getElementById('main-handle');
+        while(mainHandle.children.length > 0) {
+            mainHandle.removeChild(mainHandle.children[0]);
+        }
+
+        setTimeout(() => {playGame({onRestart: startGame})}, 1);
+    };
+
+    startGame();
 } else {
     if (cvars.debugMode.stage.enabled) {
         debugStage(cvars.debugMode.stage.number);
