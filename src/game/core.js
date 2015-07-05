@@ -1,5 +1,5 @@
 
-import {Symbols as EntitySymbols} from './decorators/EntityDescriptions'
+import {Symbols as EntitySymbols, Decorators as Entity} from './decorators/EntityDescriptions'
 
 import Channel from '../lib/Channel'
 
@@ -57,7 +57,10 @@ export class GameCore {
 
         this._entities = new Set();
         this._updatables = new Set();
-        this._renderables = new Set();
+
+        this._renderList = [];
+        this._renderList.unsorted = false;
+        this._renderList.entityRemoved = false;
 
         this._boundingGroups = new Map();
 
@@ -66,62 +69,71 @@ export class GameCore {
             this._boundingGroups.set(BoundingGroupNames[name], new Set());
         }
 
-        /**
-         * Sets the function to transform points for rendering. This is passed to the game's
-         * render loop
-         * @param  {CanvasRenderingContext2D} context The context to transform
-         * @param  {Vector2d} position 
-         * @param  {Size2d} size     
-         */
-        this._transformPointToRender = (context, position, size) => {
-            let renderCoordinates = {
-                y: this.worldInfo.height - size.height - position.y,
-                x: position.x
-            };
-            context.translate(renderCoordinates.x,renderCoordinates.y);
-        }
+        this._renderMatrices = {
+            /**
+             * Sets the function to transform points for rendering. This is passed to the game's
+             * render loop
+             * @param  {CanvasRenderingContext2D} context The context to transform
+             * @param  {Vector2d} position 
+             * @param  {Size2d} size     
+             */
+            applyScreenTransform: (context, position, size) => {
+                let renderCoordinates = {
+                    y: this.worldInfo.height - size.height - position.y,
+                    x: position.x
+                };
+                context.translate(renderCoordinates.x,renderCoordinates.y);
+            },
 
-        /**
-         * Sets the function to transform a context to the camera's view for rendering. 
-         * This is passed to the game's render loop
-         * @param  {CanvasRenderingContext2D} context The context to transform
-         * @param  {Size2d} size     
-         */
-        this._cameraTransform = (context) => {
-            //Camera transform
-            context.translate(this.camera.position.x, this.camera.position.y);
+            /**
+             * Sets the function to transform a context to the camera's view for rendering. 
+             * This is passed to the game's render loop
+             * @param  {CanvasRenderingContext2D} context The context to transform
+             * @param  {Size2d} size     
+             */
+            applyCameraTransform: (context) => {
+                //Camera transform
+                context.translate(this.camera.position.x, this.camera.position.y);
+            }
         }
     }
 
     addEntity(entity) {
-        this._entities.add(entity);
-        if (entity[EntitySymbols.updatable]) {
-            this._updatables.add(entity)
-        }
-        if (entity[EntitySymbols.renderable]) {
-            this._renderables.add(entity)
-        }
-        if (entity[EntitySymbols.boundable]) {
-            if ( this._boundingGroups.has(entity[EntitySymbols.boundable]) ){
-                this._boundingGroups.get(entity[EntitySymbols.boundable]).add(entity);
-            } else {
-                console.warn(`Bounding group '${entity.getBoundingBox.boundingGroup}' is not defined for this game`);
+        if (!this._entities.has(entity)){
+            this._entities.add(entity);
+            if (Entity.isUpdatable(entity)) {
+                this._updatables.add(entity)
             }
+            if (Entity.isRenderable(entity)) {
+                this._renderList.push(entity);
+                this._renderList.unsorted = true;
+            }
+            if (Entity.isBoundable(entity)) {
+                if ( this._boundingGroups.has(Entity.getBoundingGroup(entity)) ) {
+                    this._boundingGroups.get(Entity.getBoundingGroup(entity)).add(entity);
+                } else {
+                    console.warn(`Bounding group '${Entity.getBoundingGroup(entity)}' is not defined for this game`);
+                }
+            }
+            return this;
         }
-        return this;
     }
 
     removeEntity(entity) {
         [
             this._entities,
-            this._updatables,
-            this._renderables
+            this._updatables
         ].concat(
             [for (group of this._boundingGroups.values()) group]
         )
         .forEach((set) => {
             set.delete(entity);
         })
+
+        //Important: this does not actually mean the entity has been removed, only that
+        //the list should be filtered through later. Current implementation is to wait 
+        //until the next update loop and clean out the list then.
+        this._renderList.entityRemoved = true;
     }
 
     /**
@@ -129,6 +141,20 @@ export class GameCore {
      * @param  {number} delta Time in milliseconds since the last call of update
      */
     update(delta) {
+        //Making sure that the renderList only has entities that have not been removed
+        //from the game
+        if (this._renderList.entityRemoved) {
+            this._renderList = this._renderList.filter((entity) => {
+                return this._entities.has(entity);
+            });
+        }
+
+        //Sort the renderList by the z-index for proper rendering order, but only if
+        //an entity has been added since the last sort
+        if (this._renderList.unsorted) {
+            this._renderList.sort((firstEntity, secondEntity) => firstEntity.zIndex - secondEntity.zIndex);
+        }
+
         this._updatables.forEach((updatable) => {
             if (this.gameLogic.state.gameRunning) {
                 updatable.update(delta, this._boundingGroups, this.gameLogic);
@@ -149,9 +175,9 @@ export class GameCore {
         this.context.fillStyle = 'hsl(0, 0%, 99%)'
         this.context.fillRect(0, 0, this.context.canvas.width, this.context.canvas.height)
 
-        this._renderables.forEach((renderable) => {
+        this._renderList.forEach((renderable) => {
             this.context.save();
-            renderable.render(this.context, globalTime, this._transformPointToRender, this._cameraTransform);
+            renderable.render(this.context, globalTime, this._renderMatrices, this.camera);
             this.context.restore();
         })
 
