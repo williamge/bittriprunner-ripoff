@@ -1,7 +1,11 @@
 import * as __globalcss from './global.css'
 import * as __canvascss from './canvas.css'
 
+import {Vector2d as vec2} from './lib/Vector2d';
+
 import Player from './game/Player'
+import Background from './game/Background';
+import WeirdBackground from './game/WeirdBackground';
 
 import {Obstacle, loadObstaclesFromJson} from './game/Obstacle'
 
@@ -128,10 +132,10 @@ export default function factory(cvars) {
             class GameCamera extends Camera {
                 constructor() {
                     super();
-                    this.position = {
+                    this.position = new vec2({
                         x: 0,
                         y: 0
-                    };
+                    });
 
                     this.blockPosition = {
                         left: START_TO_OBSTACLES,
@@ -162,7 +166,12 @@ export default function factory(cvars) {
 
         let game = new GameCore(mainContext, camera, gameLogic);
 
+        let background = new Background(game.worldInfo);
+        let weirdBackground = new WeirdBackground(game.worldInfo); 
+
         game.addEntity(player);
+        game.addEntity(background);
+        game.addEntity(weirdBackground);
 
         let {loadObstacles, removeOldObstacles} = obstacleHelpers(game);
 
