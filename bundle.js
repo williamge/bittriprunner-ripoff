@@ -74,7 +74,7 @@
 	        }
 	    },
 	    features: {
-	        randomBlocks: false
+	        randomBlocks: true
 	    }
 	};
 	
@@ -118,10 +118,24 @@
 	var _main = (0, _srcMain2['default'])(cvars);
 	
 	var debugStage = _main.debugStage;
-	var play = _main.play;
+	var playGame = _main.playGame;
 	
 	if (!cvars.debugMode.enabled) {
-	    play();
+	    (function () {
+	
+	        var startGame = function startGame() {
+	            var mainHandle = document.getElementById('main-handle');
+	            while (mainHandle.children.length > 0) {
+	                mainHandle.removeChild(mainHandle.children[0]);
+	            }
+	
+	            setTimeout(function () {
+	                playGame({ onRestart: startGame });
+	            }, 1);
+	        };
+	
+	        startGame();
+	    })();
 	} else {
 	    if (cvars.debugMode.stage.enabled) {
 	        debugStage(cvars.debugMode.stage.number);
@@ -4517,46 +4531,73 @@
 	
 	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; }
 	
-	var _globalCss = __webpack_require__(101);
+	var _globalCss = __webpack_require__(99);
 	
 	var __globalcss = _interopRequireWildcard(_globalCss);
 	
-	var _canvasCss = __webpack_require__(105);
+	var _canvasCss = __webpack_require__(103);
 	
 	var __canvascss = _interopRequireWildcard(_canvasCss);
 	
-	var _gamePlayer = __webpack_require__(107);
+	var _gameCss = __webpack_require__(105);
+	
+	var __gamecss = _interopRequireWildcard(_gameCss);
+	
+	var _libVector2d = __webpack_require__(107);
+	
+	var _gamePlayer = __webpack_require__(108);
 	
 	var _gamePlayer2 = _interopRequireDefault(_gamePlayer);
 	
-	var _gameObstacle = __webpack_require__(113);
+	var _gameBackground = __webpack_require__(114);
 	
-	var _gameCore = __webpack_require__(109);
+	var _gameBackground2 = _interopRequireDefault(_gameBackground);
 	
-	var _gameCamera = __webpack_require__(99);
+	var _gameWeirdBackground = __webpack_require__(115);
+	
+	var _gameWeirdBackground2 = _interopRequireDefault(_gameWeirdBackground);
+	
+	var _gameObstacle = __webpack_require__(116);
+	
+	var _gameCore = __webpack_require__(110);
+	
+	var _gameCamera = __webpack_require__(117);
 	
 	var _gameCamera2 = _interopRequireDefault(_gameCamera);
 	
-	var _gameKeyState = __webpack_require__(114);
+	var _gameKeyState = __webpack_require__(118);
 	
 	var _gameKeyState2 = _interopRequireDefault(_gameKeyState);
 	
-	var _Input = __webpack_require__(115);
+	var _Input = __webpack_require__(119);
 	
 	var _Input2 = _interopRequireDefault(_Input);
 	
-	var _dataLevel1 = __webpack_require__(116);
+	var _dataLevel1 = __webpack_require__(120);
 	
 	var _dataLevel12 = _interopRequireDefault(_dataLevel1);
 	
-	var _dataLevel2 = __webpack_require__(117);
+	var _dataLevel2 = __webpack_require__(121);
 	
 	var _dataLevel22 = _interopRequireDefault(_dataLevel2);
 	
+	var _dataLevel3 = __webpack_require__(122);
+	
+	var _dataLevel32 = _interopRequireDefault(_dataLevel3);
+	
+	var _dataLevel4 = __webpack_require__(123);
+	
+	var _dataLevel42 = _interopRequireDefault(_dataLevel4);
+	
+	var _dataLevel5 = __webpack_require__(124);
+	
+	var _dataLevel52 = _interopRequireDefault(_dataLevel5);
+	
 	function factory(cvars) {
 	
+	    var mainHandle = document.getElementById('main-handle');
+	
 	    var createMainCanvas = function createMainCanvas() {
-	        var mainHandle = document.getElementById('main-handle');
 	
 	        var mainCanvas = document.createElement('canvas');
 	        mainCanvas.classList.add('bordered-canvas');
@@ -4582,7 +4623,7 @@
 	    var obstacleHelpers = function obstacleHelpers(game) {
 	        var marked2$0 = [getStage, getRandomStage].map(regeneratorRuntime.mark);
 	
-	        var stages = [_dataLevel12['default'], _dataLevel22['default']];
+	        var stages = [_dataLevel12['default'], _dataLevel22['default'], _dataLevel32['default'], _dataLevel42['default'], _dataLevel52['default']];
 	
 	        function getStage() {
 	            var i;
@@ -4710,7 +4751,9 @@
 	        };
 	    };
 	
-	    function play(cvars) {
+	    function play(_ref) {
+	        var onGameOver = _ref.onGameOver;
+	
 	        var _createMainCanvas = createMainCanvas();
 	
 	        var mainCanvas = _createMainCanvas.mainCanvas;
@@ -4734,10 +4777,10 @@
 	                    _classCallCheck(this, GameCamera);
 	
 	                    _get(Object.getPrototypeOf(GameCamera.prototype), 'constructor', this).call(this);
-	                    this.position = {
+	                    this.position = new _libVector2d.Vector2d({
 	                        x: 0,
 	                        y: 0
-	                    };
+	                    });
 	
 	                    this.blockPosition = {
 	                        left: START_TO_OBSTACLES,
@@ -4776,7 +4819,12 @@
 	
 	        var game = new _gameCore.GameCore(mainContext, camera, gameLogic);
 	
+	        var background = new _gameBackground2['default'](game.worldInfo);
+	        var weirdBackground = new _gameWeirdBackground2['default'](game.worldInfo);
+	
 	        game.addEntity(player);
+	        game.addEntity(background);
+	        game.addEntity(weirdBackground);
 	
 	        var _obstacleHelpers = obstacleHelpers(game);
 	
@@ -4792,7 +4840,10 @@
 	        gameLogic.events.playerHitBlock.subscribe(function (data) {
 	            loop.pauseLoop();
 	            gameLogic.state.gameRunning = false;
-	            alert('Game Over! Score: ' + player.position.x.toFixed(0));
+	
+	            var score = player.position.x.toFixed(0);
+	
+	            (onGameOver || function () {})(score);
 	        });
 	
 	        gameLogic.events.shouldLoadNextZone.subscribe(function (data) {
@@ -4803,6 +4854,38 @@
 	        //Here we go! Start the game loop and start playing
 	        gameLogic.state.gameRunning = true;
 	        loop.startLoop();
+	    }
+	
+	    function playGame(_ref2) {
+	        var onRestart = _ref2.onRestart;
+	
+	        play({
+	            onGameOver: function onGameOver(score) {
+	                var gameOverScreen = document.createElement('div');
+	                gameOverScreen.classList.add('game-game_over_screen');
+	
+	                var gameOverText = document.createElement('h2');
+	                gameOverText.textContent = 'Game Over';
+	
+	                var scoreText = document.createElement('p');
+	                scoreText.textContent = 'Score: ' + score;
+	
+	                var restartButton = document.createElement('button');
+	                restartButton.textContent = 'Restart';
+	                restartButton.classList.add('game-game_over_screen-button');
+	                restartButton.addEventListener('click', onRestart);
+	
+	                gameOverScreen.appendChild(gameOverText);
+	                gameOverScreen.appendChild(scoreText);
+	                gameOverScreen.appendChild(restartButton);
+	
+	                [].slice.call(mainHandle.children).forEach(function (child) {
+	                    child.classList.add('game-blurred');
+	                });
+	
+	                mainHandle.appendChild(gameOverScreen);
+	            }
+	        });
 	    }
 	
 	    function debugStage(stage) {
@@ -4836,7 +4919,7 @@
 	    }
 	
 	    return {
-	        play: play,
+	        playGame: playGame,
 	        debugStage: debugStage
 	    };
 	}
@@ -4847,148 +4930,13 @@
 /* 99 */
 /***/ function(module, exports, __webpack_require__) {
 
-	'use strict';
-	
-	Object.defineProperty(exports, '__esModule', {
-	    value: true
-	});
-	
-	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-	
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-	
-	var _libVector2d = __webpack_require__(100);
-	
-	var Camera = (function () {
-	    function Camera() {
-	        _classCallCheck(this, Camera);
-	
-	        this.position = new _libVector2d.Vector2d({
-	            x: 0,
-	            y: 0
-	        });
-	    }
-	
-	    _createClass(Camera, [{
-	        key: 'update',
-	        value: function update(delta) {}
-	    }]);
-	
-	    return Camera;
-	})();
-	
-	exports['default'] = Camera;
-	module.exports = exports['default'];
-
-/***/ },
-/* 100 */
-/***/ function(module, exports) {
-
-	"use strict";
-	
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-	
-	var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-	
-	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-	
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; }
-	
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-	
-	var Vector2d = (function () {
-	    function Vector2d(obj) {
-	        _classCallCheck(this, Vector2d);
-	
-	        if (obj.x != null) {
-	            this.x = obj.x;
-	        }
-	        if (obj.y != null) {
-	            this.y = obj.y;
-	        }
-	
-	        if (this.x == null || this.y == null) {
-	            //TODO(wg): this is the most shameful error message I have come up with, but
-	            //I just cannot bring myself to think of a better one right now, I'm so sorry
-	            throw new TypeError("Wrong!");
-	        }
-	    }
-	
-	    _createClass(Vector2d, [{
-	        key: "copy",
-	
-	        /**
-	         * Returns a new instance of the current vector instance, which holds no references to the current one.
-	         * @return {Vector2d} 
-	         */
-	        value: function copy() {
-	            return new Vector2d({
-	                x: this.x,
-	                y: this.y
-	            });
-	        }
-	    }, {
-	        key: "add",
-	
-	        /**
-	         * Returns a new instance representing the current vector instance added to another vector instance.
-	         * @param {Vector2d} toAdd 
-	         */
-	        value: function add(toAdd) {
-	            return new Vector2d({
-	                x: this.x + toAdd.x,
-	                y: this.y + toAdd.y
-	            });
-	        }
-	    }]);
-	
-	    return Vector2d;
-	})();
-	
-	exports.Vector2d = Vector2d;
-	
-	var Size2d = (function (_Vector2d) {
-	    function Size2d(obj) {
-	        _classCallCheck(this, Size2d);
-	
-	        _get(Object.getPrototypeOf(Size2d.prototype), "constructor", this).call(this, {
-	            x: obj.width,
-	            y: obj.height
-	        });
-	    }
-	
-	    _inherits(Size2d, _Vector2d);
-	
-	    _createClass(Size2d, [{
-	        key: "height",
-	        get: function get() {
-	            return this.y;
-	        }
-	    }, {
-	        key: "width",
-	        get: function get() {
-	            return this.x;
-	        }
-	    }]);
-	
-	    return Size2d;
-	})(Vector2d);
-	
-	exports.Size2d = Size2d;
-
-/***/ },
-/* 101 */
-/***/ function(module, exports, __webpack_require__) {
-
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 	
 	// load the styles
-	var content = __webpack_require__(102);
+	var content = __webpack_require__(100);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
-	var update = __webpack_require__(104)(content, {});
+	var update = __webpack_require__(102)(content, {});
 	if(content.locals) module.exports = content.locals;
 	// Hot Module Replacement
 	if(false) {
@@ -5005,21 +4953,21 @@
 	}
 
 /***/ },
-/* 102 */
+/* 100 */
 /***/ function(module, exports, __webpack_require__) {
 
-	exports = module.exports = __webpack_require__(103)();
+	exports = module.exports = __webpack_require__(101)();
 	// imports
 	
 	
 	// module
-	exports.push([module.id, "body {\n    background-color: hsl(0, 0%, 90%);\n}\n\n#main-handle {\n    text-align: center;\n}", ""]);
+	exports.push([module.id, "/* apply a natural box layout model to all elements, but allowing components to change */\nhtml {\n  box-sizing: border-box;\n}\n*, *:before, *:after {\n  box-sizing: inherit;\n}\n\nbody {\n    background-color: hsl(0, 0%, 90%);\n    font-family: 'Lucida Console', Monaco, sans-serif;\n}\n\n#main {\n    text-align: center;\n}\n\n#main-handle {\n    display: inline-block;\n    position: relative;\n}", ""]);
 	
 	// exports
 
 
 /***/ },
-/* 103 */
+/* 101 */
 /***/ function(module, exports) {
 
 	/*
@@ -5075,7 +5023,7 @@
 
 
 /***/ },
-/* 104 */
+/* 102 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*
@@ -5300,16 +5248,16 @@
 
 
 /***/ },
-/* 105 */
+/* 103 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 	
 	// load the styles
-	var content = __webpack_require__(106);
+	var content = __webpack_require__(104);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
-	var update = __webpack_require__(104)(content, {});
+	var update = __webpack_require__(102)(content, {});
 	if(content.locals) module.exports = content.locals;
 	// Hot Module Replacement
 	if(false) {
@@ -5326,10 +5274,10 @@
 	}
 
 /***/ },
-/* 106 */
+/* 104 */
 /***/ function(module, exports, __webpack_require__) {
 
-	exports = module.exports = __webpack_require__(103)();
+	exports = module.exports = __webpack_require__(101)();
 	// imports
 	
 	
@@ -5340,7 +5288,145 @@
 
 
 /***/ },
+/* 105 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// style-loader: Adds some css to the DOM by adding a <style> tag
+	
+	// load the styles
+	var content = __webpack_require__(106);
+	if(typeof content === 'string') content = [[module.id, content, '']];
+	// add the styles to the DOM
+	var update = __webpack_require__(102)(content, {});
+	if(content.locals) module.exports = content.locals;
+	// Hot Module Replacement
+	if(false) {
+		// When the styles change, update the <style> tags
+		if(!content.locals) {
+			module.hot.accept("!!./../node_modules/css-loader/index.js!./game.css", function() {
+				var newContent = require("!!./../node_modules/css-loader/index.js!./game.css");
+				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+				update(newContent);
+			});
+		}
+		// When the module is disposed, remove the <style> tags
+		module.hot.dispose(function() { update(); });
+	}
+
+/***/ },
+/* 106 */
+/***/ function(module, exports, __webpack_require__) {
+
+	exports = module.exports = __webpack_require__(101)();
+	// imports
+	
+	
+	// module
+	exports.push([module.id, ".game-game_over_screen {\n    position: absolute;\n    top: 0;\n    left: 0;\n    right: 0;\n    bottom: 0;\n\n    background-color: hsla(0, 0%, 15%, 0.4);\n}\n\n.game-game_over_screen-button {\n    background-color: hsla(0, 0%, 15%, 0.4);\n    border: 1px solid black;\n    font-size: 1em;\n\n    padding: 0.5em 2em;\n    margin: 1.5em;\n}\n\n.game-blurred {\n    -webkit-filter: blur(2px);\n    filter: blur(2px);\n}\n\n[name=\"instructions\"] p {\n    display: inline-block;\n    max-width: 600px;\n    text-align: center;\n}", ""]);
+	
+	// exports
+
+
+/***/ },
 /* 107 */
+/***/ function(module, exports) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	
+	var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+	
+	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	var Vector2d = (function () {
+	    function Vector2d(obj) {
+	        _classCallCheck(this, Vector2d);
+	
+	        if (obj.x != null) {
+	            this.x = obj.x;
+	        }
+	        if (obj.y != null) {
+	            this.y = obj.y;
+	        }
+	
+	        if (this.x == null || this.y == null) {
+	            //TODO(wg): this is the most shameful error message I have come up with, but
+	            //I just cannot bring myself to think of a better one right now, I'm so sorry
+	            throw new TypeError("Wrong!");
+	        }
+	    }
+	
+	    _createClass(Vector2d, [{
+	        key: "copy",
+	
+	        /**
+	         * Returns a new instance of the current vector instance, which holds no references to the current one.
+	         * @return {Vector2d} 
+	         */
+	        value: function copy() {
+	            return new Vector2d({
+	                x: this.x,
+	                y: this.y
+	            });
+	        }
+	    }, {
+	        key: "add",
+	
+	        /**
+	         * Returns a new instance representing the current vector instance added to another vector instance.
+	         * @param {Vector2d} toAdd 
+	         */
+	        value: function add(toAdd) {
+	            return new Vector2d({
+	                x: this.x + toAdd.x,
+	                y: this.y + toAdd.y
+	            });
+	        }
+	    }]);
+	
+	    return Vector2d;
+	})();
+	
+	exports.Vector2d = Vector2d;
+	
+	var Size2d = (function (_Vector2d) {
+	    function Size2d(obj) {
+	        _classCallCheck(this, Size2d);
+	
+	        _get(Object.getPrototypeOf(Size2d.prototype), "constructor", this).call(this, {
+	            x: obj.width,
+	            y: obj.height
+	        });
+	    }
+	
+	    _inherits(Size2d, _Vector2d);
+	
+	    _createClass(Size2d, [{
+	        key: "height",
+	        get: function get() {
+	            return this.y;
+	        }
+	    }, {
+	        key: "width",
+	        get: function get() {
+	            return this.x;
+	        }
+	    }]);
+	
+	    return Size2d;
+	})(Vector2d);
+	
+	exports.Size2d = Size2d;
+
+/***/ },
+/* 108 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -5359,24 +5445,27 @@
 	
 	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; }
 	
-	var _EntityInterface = __webpack_require__(108);
+	var _EntityInterface = __webpack_require__(109);
 	
 	var _EntityInterface2 = _interopRequireDefault(_EntityInterface);
 	
-	var _core = __webpack_require__(109);
+	var _core = __webpack_require__(110);
 	
-	var _libVector2d = __webpack_require__(100);
+	var _libVector2d = __webpack_require__(107);
 	
-	var _libBoundingBox = __webpack_require__(112);
+	var _libBoundingBox = __webpack_require__(113);
 	
 	var _libBoundingBox2 = _interopRequireDefault(_libBoundingBox);
 	
-	var _decoratorsEntityDescriptions = __webpack_require__(110
+	var _decoratorsEntityDescriptions = __webpack_require__(111);
+	
+	var Updatable = _decoratorsEntityDescriptions.Decorators.Updatable;
 	
 	/**
 	 * Represents a player in the game world which the user controls.
 	 */
-	);
+	var Boundable = _decoratorsEntityDescriptions.Decorators.Boundable;
+	var Renderable = _decoratorsEntityDescriptions.Decorators.Renderable;
 	
 	var Player = (function (_Entity) {
 	    /**
@@ -5411,7 +5500,9 @@
 	        this.keyState = keyState;
 	
 	        this.personalCanvas = document.createElement('canvas');
-	        this.oldPosition = this.position;
+	        this.oldCameraPosition = 0;
+	
+	        this.zIndex = _decoratorsEntityDescriptions.ZLevels.IMMEDIATE_FOREGROUND;
 	    }
 	
 	    _inherits(Player, _Entity);
@@ -5473,6 +5564,7 @@
 	
 	            if (!this._checkCollisions(BoundingMap, gameLogic)) {
 	                if (this.position.y <= 0) {
+	                    this.position.y = 0;
 	                    this.velocity.y = 0;
 	
 	                    if (this.keyState.get('up_arrow')) {
@@ -5482,15 +5574,15 @@
 	                    this.velocity.y += this.acceleration.y * (delta / 1000);
 	                }
 	
-	                this.oldPosition = this.position.copy();
-	
 	                this.position.x += this.velocity.x * (delta / 1000);
 	                this.position.y += this.velocity.y * (delta / 1000);
 	            }
 	        }
 	    }, {
 	        key: 'render',
-	        value: function render(context, globalTime, applyScreenTransform, applyCameraTransform) {
+	        value: function render(context, globalTime, _ref, camera) {
+	            var applyScreenTransform = _ref.applyScreenTransform;
+	            var applyCameraTransform = _ref.applyCameraTransform;
 	
 	            var mixingCanvas = document.createElement('canvas');
 	            mixingCanvas.width = context.canvas.width;
@@ -5509,7 +5601,7 @@
 	             */
 	            mixingContext.save();
 	
-	            applyScreenTransform(mixingContext, new _libVector2d.Vector2d({ x: -(this.position.x - this.oldPosition.x), y: 0 }), new _libVector2d.Size2d({ width: mixingCanvas.width, height: mixingCanvas.height }));
+	            applyScreenTransform(mixingContext, new _libVector2d.Vector2d({ x: camera.position.x - this.oldCameraPosition.x, y: 0 }), new _libVector2d.Size2d({ width: mixingCanvas.width, height: mixingCanvas.height }));
 	            mixingContext.globalAlpha = 0.93;
 	            mixingContext.drawImage(this.personalCanvas, 0, 0);
 	
@@ -5527,6 +5619,8 @@
 	            var hue = (Math.sin(globalTime / 6000 * Math.PI) + 1) * 360;
 	
 	            mixingContext.fillStyle = 'hsl(' + hue + ', 30%, 70%)';
+	
+	            mixingContext.rotate(-(this.position.y * 0.0015));
 	            mixingContext.fillRect(0, 0, this.size.width, this.size.height);
 	
 	            mixingContext.restore();
@@ -5539,12 +5633,14 @@
 	             * since the next time render is run this will have been the last frame's rendering.
 	             */
 	            this.personalCanvas = mixingCanvas;
+	
+	            this.oldCameraPosition = camera.position.copy();
 	        }
 	    }]);
 	
-	    Player = (0, _decoratorsEntityDescriptions.Updatable)(Player) || Player;
-	    Player = (0, _decoratorsEntityDescriptions.Renderable)(Player) || Player;
-	    Player = (0, _decoratorsEntityDescriptions.Boundable)(_core.BoundingGroupNames.Player)(Player) || Player;
+	    Player = Updatable(Player) || Player;
+	    Player = Renderable(Player) || Player;
+	    Player = Boundable(_core.BoundingGroupNames.Player)(Player) || Player;
 	    return Player;
 	})(_EntityInterface2['default']);
 	
@@ -5552,7 +5648,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 108 */
+/* 109 */
 /***/ function(module, exports) {
 
 	
@@ -5562,7 +5658,7 @@
 	"use strict";
 	
 	Object.defineProperty(exports, "__esModule", {
-	    value: true
+	  value: true
 	});
 	
 	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
@@ -5570,65 +5666,71 @@
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
 	var Entity = (function () {
-	    function Entity() {
-	        _classCallCheck(this, Entity);
+	  function Entity() {
+	    _classCallCheck(this, Entity);
+	  }
+	
+	  _createClass(Entity, [{
+	    key: "update",
+	
+	    /**
+	     * Constructor is left entirely up to the implementing class to decide the signature. 
+	     */
+	
+	    /**
+	     * Called every pass through the update loop, usually at least once per frame. Don't presume
+	     * any ordering of the update and render methods, this method should leave the object in a consistent state. 
+	     * @param  {Number} delta Milliseconds since last call of #update
+	     * @return {void}       
+	     */
+	    value: function update(delta) {}
+	  }, {
+	    key: "render",
+	
+	    /**
+	     * Called every pass through the render loop, exactly once per frame (obviously). Don't presume
+	     * any ordering of the update and render methods, this method should leave the object in a consistent
+	     * state and should not contain any logic to change the object beyond rendering it.
+	     * @param  {CanvasRenderingContext2D} context              The context to render the object to
+	     * @param  {Number} globalTime           Elapsed time since the start of the game
+	     * @param  {(CanvasRenderingContext2D, position, size) => void} applyScreenTransform Applies a screen transformation to the render context
+	     * to move the context in to a state that game coordinates can be applied to. This should be called before
+	     * rendering any points using game/world-coordinates
+	     * @param  {(CanvasRenderingContext2D) => void} applyCameraTransform Applies a camera transformation to the render context
+	     * to move the context in to a state that game coordinates can be applied to relative to the camera. This should be called before
+	     * rendering any points using game/world-coordinates
+	     * @return {void}                      
+	     */
+	    value: function render(context, globalTime, applyScreenTransform, applyCameraTransform) {}
+	  }, {
+	    key: "getBoundingBox",
+	
+	    /**
+	     * Returns an axis-aligned bounding box for the object, up to the inheriting class to decide
+	     * how that should be made. This can be called at any time after initialization, so beware.
+	     * @return {BoundingBox} BoundingBox instance for the instance
+	     */
+	    value: function getBoundingBox() {
+	      return new BoundingBox(new vec2({
+	        x: this.position.x,
+	        y: this.position.y + this.size.height
+	      }), new vec2({
+	        x: this.position.x + this.size.width,
+	        y: this.position.y
+	      }));
 	    }
+	  }]);
 	
-	    _createClass(Entity, [{
-	        key: "update",
-	
-	        /**
-	         * Constructor is left entirely up to the implementing class to decide the signature. 
-	         */
-	
-	        /**
-	         * Called every pass through the update loop, usually at least once per frame. Don't presume
-	         * any ordering of the update and render methods, this method should leave the object in a consistent state. 
-	         * @param  {Number} delta Milliseconds since last call of #update
-	         * @return {void}       
-	         */
-	        value: function update(delta) {}
-	    }, {
-	        key: "render",
-	
-	        /**
-	         * Called every pass through the render loop, exactly once per frame (obviously). Don't presume
-	         * any ordering of the update and render methods, this method should leave the object in a consistent
-	         * state and should not contain any logic to change the object beyond rendering it.
-	         * @param  {CanvasRenderingContext2D} context              The context to render the object to
-	         * @param  {Number} globalTime           Elapsed time since the start of the game
-	         * @param  {(CanvasRenderingContext2D, position, size) => void} applyScreenTransform Applies a screen transformation to the render context
-	         * to move the context in to a state that game coordinates can be applied to. This should be called before
-	         * rendering any points using game/world-coordinates
-	         * @param  {(CanvasRenderingContext2D) => void} applyCameraTransform Applies a camera transformation to the render context
-	         * to move the context in to a state that game coordinates can be applied to relative to the camera. This should be called before
-	         * rendering any points using game/world-coordinates
-	         * @return {void}                      
-	         */
-	        value: function render(context, globalTime, applyScreenTransform, applyCameraTransform) {}
-	    }, {
-	        key: "getBoundingBox",
-	
-	        /**
-	         * Returns an axis-aligned bounding box for the object, up to the inheriting class to decide
-	         * how that should be made. This can be called at any time after initialization, so beware.
-	         * @return {BoundingBox} BoundingBox instance for the instance
-	         */
-	        value: function getBoundingBox() {
-	            return new BoundingBox(new vec2({
-	                x: this.position.x,
-	                y: this.position.y + this.size.height
-	            }), new vec2({
-	                x: this.position.x + this.size.width,
-	                y: this.position.y
-	            }));
-	        }
-	    }]);
-	
-	    return Entity;
+	  return Entity;
 	})();
 	
 	exports["default"] = Entity;
+	
+	/**
+	 * Note: A bigger number is better, the bigger number appears higher on the render list and will be rendered
+	 * on top of everything else. This may run contrary to other engines or frameworks.
+	 */
+	Entity.prototype.zIndex = 0;
 	module.exports = exports["default"];
 
 	/**
@@ -5642,7 +5744,7 @@
 	 */
 
 /***/ },
-/* 109 */
+/* 110 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -5657,9 +5759,9 @@
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 	
-	var _decoratorsEntityDescriptions = __webpack_require__(110);
+	var _decoratorsEntityDescriptions = __webpack_require__(111);
 	
-	var _libChannel = __webpack_require__(111);
+	var _libChannel = __webpack_require__(112);
 	
 	var _libChannel2 = _interopRequireDefault(_libChannel);
 	
@@ -5727,7 +5829,10 @@
 	
 	        this._entities = new Set();
 	        this._updatables = new Set();
-	        this._renderables = new Set();
+	
+	        this._renderList = [];
+	        this._renderList.unsorted = false;
+	        this._renderList.entityRemoved = false;
 	
 	        this._boundingGroups = new Map();
 	
@@ -5757,58 +5862,63 @@
 	            }
 	        }
 	
-	        /**
-	         * Sets the function to transform points for rendering. This is passed to the game's
-	         * render loop
-	         * @param  {CanvasRenderingContext2D} context The context to transform
-	         * @param  {Vector2d} position 
-	         * @param  {Size2d} size     
-	         */
-	        this._transformPointToRender = function (context, position, size) {
-	            var renderCoordinates = {
-	                y: _this.worldInfo.height - size.height - position.y,
-	                x: position.x
-	            };
-	            context.translate(renderCoordinates.x, renderCoordinates.y);
-	        };
+	        this._renderMatrices = {
+	            /**
+	             * Sets the function to transform points for rendering. This is passed to the game's
+	             * render loop
+	             * @param  {CanvasRenderingContext2D} context The context to transform
+	             * @param  {Vector2d} position 
+	             * @param  {Size2d} size     
+	             */
+	            applyScreenTransform: function applyScreenTransform(context, position, size) {
+	                var renderCoordinates = {
+	                    y: _this.worldInfo.height - size.height - position.y,
+	                    x: position.x
+	                };
+	                context.translate(renderCoordinates.x, renderCoordinates.y);
+	            },
 	
-	        /**
-	         * Sets the function to transform a context to the camera's view for rendering. 
-	         * This is passed to the game's render loop
-	         * @param  {CanvasRenderingContext2D} context The context to transform
-	         * @param  {Size2d} size     
-	         */
-	        this._cameraTransform = function (context) {
-	            //Camera transform
-	            context.translate(_this.camera.position.x, _this.camera.position.y);
+	            /**
+	             * Sets the function to transform a context to the camera's view for rendering. 
+	             * This is passed to the game's render loop
+	             * @param  {CanvasRenderingContext2D} context The context to transform
+	             * @param  {Size2d} size     
+	             */
+	            applyCameraTransform: function applyCameraTransform(context) {
+	                //Camera transform
+	                context.translate(_this.camera.position.x, _this.camera.position.y);
+	            }
 	        };
 	    }
 	
 	    _createClass(GameCore, [{
 	        key: 'addEntity',
 	        value: function addEntity(entity) {
-	            this._entities.add(entity);
-	            if (entity[_decoratorsEntityDescriptions.Symbols.updatable]) {
-	                this._updatables.add(entity);
-	            }
-	            if (entity[_decoratorsEntityDescriptions.Symbols.renderable]) {
-	                this._renderables.add(entity);
-	            }
-	            if (entity[_decoratorsEntityDescriptions.Symbols.boundable]) {
-	                if (this._boundingGroups.has(entity[_decoratorsEntityDescriptions.Symbols.boundable])) {
-	                    this._boundingGroups.get(entity[_decoratorsEntityDescriptions.Symbols.boundable]).add(entity);
-	                } else {
-	                    console.warn('Bounding group \'' + entity.getBoundingBox.boundingGroup + '\' is not defined for this game');
+	            if (!this._entities.has(entity)) {
+	                this._entities.add(entity);
+	                if (_decoratorsEntityDescriptions.Decorators.isUpdatable(entity)) {
+	                    this._updatables.add(entity);
 	                }
+	                if (_decoratorsEntityDescriptions.Decorators.isRenderable(entity)) {
+	                    this._renderList.push(entity);
+	                    this._renderList.unsorted = true;
+	                }
+	                if (_decoratorsEntityDescriptions.Decorators.isBoundable(entity)) {
+	                    if (this._boundingGroups.has(_decoratorsEntityDescriptions.Decorators.getBoundingGroup(entity))) {
+	                        this._boundingGroups.get(_decoratorsEntityDescriptions.Decorators.getBoundingGroup(entity)).add(entity);
+	                    } else {
+	                        console.warn('Bounding group \'' + _decoratorsEntityDescriptions.Decorators.getBoundingGroup(entity) + '\' is not defined for this game');
+	                    }
+	                }
+	                return this;
 	            }
-	            return this;
 	        }
 	    }, {
 	        key: 'removeEntity',
 	        value: function removeEntity(entity) {
 	            var _this2 = this;
 	
-	            [this._entities, this._updatables, this._renderables].concat((function () {
+	            [this._entities, this._updatables].concat((function () {
 	                var _concat = [];
 	                var _iteratorNormalCompletion2 = true;
 	                var _didIteratorError2 = false;
@@ -5839,6 +5949,11 @@
 	            })()).forEach(function (set) {
 	                set['delete'](entity);
 	            });
+	
+	            //Important: this does not actually mean the entity has been removed, only that
+	            //the list should be filtered through later. Current implementation is to wait
+	            //until the next update loop and clean out the list then.
+	            this._renderList.entityRemoved = true;
 	        }
 	    }, {
 	        key: 'update',
@@ -5849,6 +5964,22 @@
 	         */
 	        value: function update(delta) {
 	            var _this3 = this;
+	
+	            //Making sure that the renderList only has entities that have not been removed
+	            //from the game
+	            if (this._renderList.entityRemoved) {
+	                this._renderList = this._renderList.filter(function (entity) {
+	                    return _this3._entities.has(entity);
+	                });
+	            }
+	
+	            //Sort the renderList by the z-index for proper rendering order, but only if
+	            //an entity has been added since the last sort
+	            if (this._renderList.unsorted) {
+	                this._renderList.sort(function (firstEntity, secondEntity) {
+	                    return firstEntity.zIndex - secondEntity.zIndex;
+	                });
+	            }
 	
 	            this._updatables.forEach(function (updatable) {
 	                if (_this3.gameLogic.state.gameRunning) {
@@ -5874,9 +6005,9 @@
 	            this.context.fillStyle = 'hsl(0, 0%, 99%)';
 	            this.context.fillRect(0, 0, this.context.canvas.width, this.context.canvas.height);
 	
-	            this._renderables.forEach(function (renderable) {
+	            this._renderList.forEach(function (renderable) {
 	                _this4.context.save();
-	                renderable.render(_this4.context, globalTime, _this4._transformPointToRender, _this4._cameraTransform);
+	                renderable.render(_this4.context, globalTime, _this4._renderMatrices, _this4.camera);
 	                _this4.context.restore();
 	            });
 	
@@ -5968,7 +6099,7 @@
 	exports.GameLoop = GameLoop;
 
 /***/ },
-/* 110 */
+/* 111 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -5976,9 +6107,6 @@
 	Object.defineProperty(exports, '__esModule', {
 	    value: true
 	});
-	exports.Updatable = Updatable;
-	exports.Renderable = Renderable;
-	exports.Boundable = Boundable;
 	var Symbols = {
 	    updatable: Symbol('updatable'),
 	    renderable: Symbol('renderable'),
@@ -5987,36 +6115,56 @@
 	};
 	
 	exports.Symbols = Symbols;
-	/**
-	 * Marks a class as being able to be updated in a GameCore instance
-	 */
+	var ZLevels = {
+	    BACKGROUND: -100,
+	    DEFAULT: 0,
+	    FOREGROUND: 50,
+	    IMMEDIATE_FOREGROUND: 100
+	};
 	
-	function Updatable(target) {
-	    target.prototype[Symbols.updatable] = true;
-	}
+	exports.ZLevels = ZLevels;
+	var Decorators = {
+	    /**
+	     * Marks a class as being able to be updated in a GameCore instance
+	     */
+	    Updatable: function Updatable(target) {
+	        target.prototype[Symbols.updatable] = true;
+	    },
+	    isUpdatable: function isUpdatable(target) {
+	        return !!target[Symbols.updatable];
+	    },
 	
-	/**
-	 * Marks a class as being able to be renderable in a GameCore instance
-	 */
+	    /**
+	     * Marks a class as being able to be renderable in a GameCore instance
+	     */
+	    Renderable: function Renderable(target) {
+	        target.prototype[Symbols.renderable] = true;
+	    },
+	    isRenderable: function isRenderable(target) {
+	        return !!target[Symbols.renderable];
+	    },
 	
-	function Renderable(target) {
-	    target.prototype[Symbols.renderable] = true;
-	}
-	
-	/**
-	 * Marks a class as being able to be collided against in a GameCore instance.
-	 * Needs to be called with a valid bounding group identifier, identifying which
-	 * bounding group this class should belong to. 
-	 */
-	
-	function Boundable(boundableGroup) {
-	    return function (target) {
-	        target.prototype[Symbols.boundable] = boundableGroup;
-	    };
-	}
+	    /**
+	     * Marks a class as being able to be collided against in a GameCore instance.
+	     * Needs to be called with a valid bounding group identifier, identifying which
+	     * bounding group this class should belong to. 
+	     */
+	    Boundable: function Boundable(boundableGroup) {
+	        return function (target) {
+	            target.prototype[Symbols.boundable] = boundableGroup;
+	        };
+	    },
+	    isBoundable: function isBoundable(target) {
+	        return !!target[Symbols.boundable];
+	    },
+	    getBoundingGroup: function getBoundingGroup(target) {
+	        return target[Symbols.boundable];
+	    }
+	};
+	exports.Decorators = Decorators;
 
 /***/ },
-/* 111 */
+/* 112 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -6078,7 +6226,7 @@
 	module.exports = exports["default"];
 
 /***/ },
-/* 112 */
+/* 113 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -6093,7 +6241,7 @@
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 	
-	var _Vector2d = __webpack_require__(100);
+	var _Vector2d = __webpack_require__(107);
 	
 	var _Vector2d2 = _interopRequireDefault(_Vector2d);
 	
@@ -6178,7 +6326,254 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 113 */
+/* 114 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, '__esModule', {
+	    value: true
+	});
+	
+	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+	
+	var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; }
+	
+	var _EntityInterface = __webpack_require__(109);
+	
+	var _EntityInterface2 = _interopRequireDefault(_EntityInterface);
+	
+	var _decoratorsEntityDescriptions = __webpack_require__(111);
+	
+	var Renderable = _decoratorsEntityDescriptions.Decorators.Renderable;
+	
+	function _gridTextureForMoving(worldInfo) {
+	    var BLOCK_WIDTH = worldInfo.width / 15;
+	    var textureCanvas = document.createElement('canvas');
+	    textureCanvas.width = worldInfo.width * 1.0 + BLOCK_WIDTH;
+	    textureCanvas.height = worldInfo.height * 1.0;
+	    var textureContext = textureCanvas.getContext('2d');
+	
+	    var width = textureCanvas.width;
+	    var height = textureCanvas.height;
+	
+	    textureContext.strokeStyle = 'hsl(0, 0%, 90%)';
+	
+	    for (var i = 0; i < width + BLOCK_WIDTH; i += BLOCK_WIDTH) {
+	        var path = new Path2D();
+	        path.moveTo(i, 0);
+	        path.lineTo(i, height);
+	        textureContext.stroke(path);
+	    }
+	    for (var i = 0; i < height + BLOCK_WIDTH; i += BLOCK_WIDTH) {
+	        var path = new Path2D();
+	        path.moveTo(0, i);
+	        path.lineTo(width, i);
+	        textureContext.stroke(path);
+	    }
+	
+	    return {
+	        gridCanvas: textureCanvas,
+	        BLOCK_WIDTH: BLOCK_WIDTH
+	    };
+	}
+	
+	var Background = (function (_Entity) {
+	    /**
+	     * Player constructor
+	     * @param  {KeyState} keyState  KeyState instance which the player intance will use for the current key-state
+	     */
+	
+	    function Background(worldInfo) {
+	        _classCallCheck(this, _Background);
+	
+	        _get(Object.getPrototypeOf(_Background.prototype), 'constructor', this).call(this);
+	
+	        this.zIndex = _decoratorsEntityDescriptions.ZLevels.BACKGROUND;
+	
+	        var _gridTextureForMoving2 = _gridTextureForMoving(worldInfo);
+	
+	        var gridCanvas = _gridTextureForMoving2.gridCanvas;
+	        var BLOCK_WIDTH = _gridTextureForMoving2.BLOCK_WIDTH;
+	
+	        this.gridCanvas = gridCanvas;
+	        this.BLOCK_WIDTH = BLOCK_WIDTH;
+	    }
+	
+	    _inherits(Background, _Entity);
+	
+	    var _Background = Background;
+	
+	    _createClass(_Background, [{
+	        key: 'render',
+	        value: function render(context, globalTime, _ref, camera) {
+	            var applyScreenTransform = _ref.applyScreenTransform;
+	            var applyCameraTransform = _ref.applyCameraTransform;
+	
+	            context.save();
+	
+	            var moveBy = camera.position.x % this.BLOCK_WIDTH;
+	
+	            context.translate(moveBy, 0);
+	
+	            context.drawImage(this.gridCanvas, 0, 0);
+	
+	            context.restore();
+	        }
+	    }]);
+	
+	    Background = Renderable(Background) || Background;
+	    return Background;
+	})(_EntityInterface2['default']);
+	
+	exports['default'] = Background;
+	module.exports = exports['default'];
+
+/***/ },
+/* 115 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, '__esModule', {
+	    value: true
+	});
+	
+	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+	
+	var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; }
+	
+	var _EntityInterface = __webpack_require__(109);
+	
+	var _EntityInterface2 = _interopRequireDefault(_EntityInterface);
+	
+	var _decoratorsEntityDescriptions = __webpack_require__(111);
+	
+	var Renderable = _decoratorsEntityDescriptions.Decorators.Renderable;
+	
+	function _gridTextureForMoving(worldInfo) {
+	    var BLOCK_WIDTH = worldInfo.width / 15;
+	    var textureCanvas = document.createElement('canvas');
+	    textureCanvas.width = worldInfo.width * 1.5;
+	    textureCanvas.height = worldInfo.width * 1.5;
+	    var textureContext = textureCanvas.getContext('2d');
+	
+	    var width = textureCanvas.width;
+	    var height = textureCanvas.height;
+	
+	    textureContext.strokeStyle = 'hsl(0, 0%, 90%)';
+	
+	    for (var i = 0; i < width + BLOCK_WIDTH; i += BLOCK_WIDTH) {
+	        var path = new Path2D();
+	        path.moveTo(i, 0);
+	        path.lineTo(i, height);
+	        textureContext.stroke(path);
+	    }
+	    for (var i = 0; i < height + BLOCK_WIDTH; i += BLOCK_WIDTH) {
+	        var path = new Path2D();
+	        path.moveTo(0, i);
+	        path.lineTo(width, i);
+	        textureContext.stroke(path);
+	    }
+	
+	    return {
+	        gridCanvas: textureCanvas,
+	        BLOCK_WIDTH: BLOCK_WIDTH
+	    };
+	}
+	
+	var timeSpeed = 0.5;
+	
+	var WeirdBackground = (function (_Entity) {
+	    /**
+	     * Player constructor
+	     * @param  {KeyState} keyState  KeyState instance which the player intance will use for the current key-state
+	     */
+	
+	    function WeirdBackground(worldInfo) {
+	        _classCallCheck(this, _WeirdBackground);
+	
+	        _get(Object.getPrototypeOf(_WeirdBackground.prototype), 'constructor', this).call(this);
+	
+	        this.parentCanvasSize = {
+	            width: worldInfo.width,
+	            height: worldInfo.height
+	        };
+	
+	        this.zIndex = -50;
+	
+	        var _gridTextureForMoving2 = _gridTextureForMoving(worldInfo);
+	
+	        var gridCanvas = _gridTextureForMoving2.gridCanvas;
+	        var BLOCK_WIDTH = _gridTextureForMoving2.BLOCK_WIDTH;
+	
+	        this.gridCanvas = gridCanvas;
+	        this.BLOCK_WIDTH = BLOCK_WIDTH;
+	    }
+	
+	    _inherits(WeirdBackground, _Entity);
+	
+	    var _WeirdBackground = WeirdBackground;
+	
+	    _createClass(_WeirdBackground, [{
+	        key: 'render',
+	        value: function render(context, globalTime, _ref, camera) {
+	            var _this = this;
+	
+	            var applyScreenTransform = _ref.applyScreenTransform;
+	            var applyCameraTransform = _ref.applyCameraTransform;
+	
+	            var width = this.parentCanvasSize.width;
+	            var height = this.parentCanvasSize.height;
+	
+	            context.save();
+	
+	            var centerGridTransformation = function centerGridTransformation() {
+	                var moveByX = _this.gridCanvas.width / 2;
+	                var moveByY = _this.gridCanvas.height / 2;
+	
+	                context.translate(-moveByX, -moveByY);
+	            };
+	
+	            var angle = Math.sin(timeSpeed * (globalTime / 1000)) + 1;
+	
+	            var scaleByX = Math.sin(timeSpeed * 0.5 * (globalTime / 1000)) + 1;
+	            var scaleByY = angle;
+	
+	            context.translate(width / 2, height / 2);
+	            context.rotate(angle);
+	            context.scale(scaleByX + 1, scaleByY + 1);
+	            centerGridTransformation();
+	
+	            context.globalAlpha = 0.25;
+	
+	            context.drawImage(this.gridCanvas, 0, 0);
+	
+	            context.restore();
+	        }
+	    }]);
+	
+	    WeirdBackground = Renderable(WeirdBackground) || WeirdBackground;
+	    return WeirdBackground;
+	})(_EntityInterface2['default']);
+	
+	exports['default'] = WeirdBackground;
+	module.exports = exports['default'];
+
+/***/ },
+/* 116 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -6201,24 +6596,27 @@
 	
 	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; }
 	
-	var _EntityInterface = __webpack_require__(108);
+	var _EntityInterface = __webpack_require__(109);
 	
 	var _EntityInterface2 = _interopRequireDefault(_EntityInterface);
 	
-	var _libVector2d = __webpack_require__(100);
+	var _libVector2d = __webpack_require__(107);
 	
-	var _core = __webpack_require__(109);
+	var _core = __webpack_require__(110);
 	
-	var _libBoundingBox = __webpack_require__(112);
+	var _libBoundingBox = __webpack_require__(113);
 	
 	var _libBoundingBox2 = _interopRequireDefault(_libBoundingBox);
 	
-	var _decoratorsEntityDescriptions = __webpack_require__(110
+	var _decoratorsEntityDescriptions = __webpack_require__(111);
+	
+	var Updatable = _decoratorsEntityDescriptions.Decorators.Updatable;
 	
 	/**
 	 * Represents an obstacle in the game world which the player has to avoid or the game ends.
 	 */
-	);
+	var Boundable = _decoratorsEntityDescriptions.Decorators.Boundable;
+	var Renderable = _decoratorsEntityDescriptions.Decorators.Renderable;
 	
 	var Obstacle = (function (_Entity) {
 	    /**
@@ -6260,7 +6658,10 @@
 	        }
 	    }, {
 	        key: 'render',
-	        value: function render(context, globalTime, applyScreenTransform, applyCameraTransform) {
+	        value: function render(context, globalTime, _ref) {
+	            var applyScreenTransform = _ref.applyScreenTransform;
+	            var applyCameraTransform = _ref.applyCameraTransform;
+	
 	            applyCameraTransform(context);
 	
 	            applyScreenTransform(context, this.position, this.size);
@@ -6270,9 +6671,9 @@
 	        }
 	    }]);
 	
-	    Obstacle = (0, _decoratorsEntityDescriptions.Updatable)(Obstacle) || Obstacle;
-	    Obstacle = (0, _decoratorsEntityDescriptions.Renderable)(Obstacle) || Obstacle;
-	    Obstacle = (0, _decoratorsEntityDescriptions.Boundable)(_core.BoundingGroupNames.Blocks)(Obstacle) || Obstacle;
+	    Obstacle = Updatable(Obstacle) || Obstacle;
+	    Obstacle = Renderable(Obstacle) || Obstacle;
+	    Obstacle = Boundable(_core.BoundingGroupNames.Blocks)(Obstacle) || Obstacle;
 	    return Obstacle;
 	})(_EntityInterface2['default']);
 	
@@ -6359,7 +6760,44 @@
 	}
 
 /***/ },
-/* 114 */
+/* 117 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, '__esModule', {
+	    value: true
+	});
+	
+	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+	
+	var _libVector2d = __webpack_require__(107);
+	
+	var Camera = (function () {
+	    function Camera() {
+	        _classCallCheck(this, Camera);
+	
+	        this.position = new _libVector2d.Vector2d({
+	            x: 0,
+	            y: 0
+	        });
+	    }
+	
+	    _createClass(Camera, [{
+	        key: 'update',
+	        value: function update(delta) {}
+	    }]);
+	
+	    return Camera;
+	})();
+	
+	exports['default'] = Camera;
+	module.exports = exports['default'];
+
+/***/ },
+/* 118 */
 /***/ function(module, exports) {
 
 	/**
@@ -6427,7 +6865,7 @@
 	module.exports = exports["default"];
 
 /***/ },
-/* 115 */
+/* 119 */
 /***/ function(module, exports) {
 
 	/**
@@ -6505,7 +6943,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 116 */
+/* 120 */
 /***/ function(module, exports) {
 
 	/**
@@ -6598,7 +7036,7 @@
 	module.exports = exports["default"];
 
 /***/ },
-/* 117 */
+/* 121 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -6699,6 +7137,201 @@
 	    },
 	    position: {
 	        x: 520,
+	        y: 0
+	    }
+	}];
+	module.exports = exports["default"];
+
+/***/ },
+/* 122 */
+/***/ function(module, exports) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports["default"] = [{
+	    size: {
+	        height: 60,
+	        width: 30
+	    },
+	    position: {
+	        x: 0,
+	        y: 180
+	    }
+	}, {
+	    size: {
+	        height: 80,
+	        width: 30
+	    },
+	    position: {
+	        x: 210,
+	        y: 160
+	    }
+	}, {
+	    size: {
+	        height: 10,
+	        width: 30
+	    },
+	    position: {
+	        x: 320,
+	        y: 230
+	    }
+	},
+	//Ground blocks start here:
+	{
+	    size: {
+	        height: 40,
+	        width: 30
+	    },
+	    position: {
+	        x: 160,
+	        y: 0
+	    }
+	}, {
+	    size: {
+	        height: 60,
+	        width: 30
+	    },
+	    position: {
+	        x: 400,
+	        y: 0
+	    }
+	}, {
+	    size: {
+	        height: 30,
+	        width: 60
+	    },
+	    position: {
+	        x: 570,
+	        y: 0
+	    }
+	}];
+	module.exports = exports["default"];
+
+/***/ },
+/* 123 */
+/***/ function(module, exports) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports["default"] = [{
+	    size: {
+	        height: 60,
+	        width: 400
+	    },
+	    position: {
+	        x: 0,
+	        y: 180
+	    }
+	}, {
+	    size: {
+	        height: 80,
+	        width: 30
+	    },
+	    position: {
+	        x: 210,
+	        y: 160
+	    }
+	}, {
+	    size: {
+	        height: 70,
+	        width: 30
+	    },
+	    position: {
+	        x: 320,
+	        y: 170
+	    }
+	},
+	//Ground blocks start here:
+	{
+	    size: {
+	        height: 40,
+	        width: 30
+	    },
+	    position: {
+	        x: 160,
+	        y: 0
+	    }
+	}, {
+	    size: {
+	        height: 30,
+	        width: 30
+	    },
+	    position: {
+	        x: 240,
+	        y: 0
+	    }
+	}, {
+	    size: {
+	        height: 60,
+	        width: 60
+	    },
+	    position: {
+	        x: 360,
+	        y: 0
+	    }
+	}, {
+	    size: {
+	        height: 30,
+	        width: 30
+	    },
+	    position: {
+	        x: 560,
+	        y: 0
+	    }
+	}];
+	module.exports = exports["default"];
+
+/***/ },
+/* 124 */
+/***/ function(module, exports) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports["default"] = [
+	//Ground blocks start here:
+	{
+	    size: {
+	        height: 30,
+	        width: 60
+	    },
+	    position: {
+	        x: 160,
+	        y: 0
+	    }
+	}, {
+	    size: {
+	        height: 60,
+	        width: 30
+	    },
+	    position: {
+	        x: 240,
+	        y: 0
+	    }
+	}, {
+	    size: {
+	        height: 30,
+	        width: 60
+	    },
+	    position: {
+	        x: 380,
+	        y: 0
+	    }
+	}, {
+	    size: {
+	        height: 80,
+	        width: 30
+	    },
+	    position: {
+	        x: 560,
 	        y: 0
 	    }
 	}];
