@@ -68,9 +68,12 @@ export class Obstacle extends Entity {
  */
 export function *loadObstaclesFromJson(worldInfo, JsonList, offsetX) {
     for (let obstacleDef of JsonList) {
-        yield new Obstacle(obstacleDef.size, new vec2({
-            x: obstacleDef.position.x + offsetX,
-            y: obstacleDef.position.y
-        }));
+        yield new Obstacle(
+            obstacleDef.size, 
+            new vec2({
+                x: obstacleDef.position.x + offsetX,
+                y: obstacleDef.position.y
+            })
+        );
     }
 }

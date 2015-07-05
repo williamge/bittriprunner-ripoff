@@ -18,6 +18,9 @@ import Input from './Input'
 
 import level1 from './data/level1';
 import level2 from './data/level2';
+import level3 from './data/level3';
+import level4 from './data/level4';
+import level5 from './data/level5';
 
 export default function factory(cvars) {
 
@@ -50,7 +53,10 @@ export default function factory(cvars) {
 
         const stages = [
             level1,
-            level2
+            level2,
+            level3,
+            level4,
+            level5
         ];
 
         function *getStage() {

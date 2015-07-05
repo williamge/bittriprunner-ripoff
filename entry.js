@@ -17,7 +17,7 @@ let cvars = {
         }
     },
     features: {
-        randomBlocks: false
+        randomBlocks: true
     }
 };
 

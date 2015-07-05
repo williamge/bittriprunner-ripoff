@@ -21,3 +21,9 @@
     -webkit-filter: blur(2px);
     filter: blur(2px);
 }
+
+[name="instructions"] p {
+    display: inline-block;
+    max-width: 600px;
+    text-align: center;
+}
