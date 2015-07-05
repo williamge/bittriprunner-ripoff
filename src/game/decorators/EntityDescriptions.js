@@ -5,27 +5,49 @@ export const Symbols = {
     boundable: Symbol('boundable')
 }
 
-/**
- * Marks a class as being able to be updated in a GameCore instance
- */
-export function Updatable(target) {
-    target.prototype[Symbols.updatable] = true;
-}
+export const ZLevels = {
+    BACKGROUND: -100,
+    DEFAULT: 0,
+    FOREGROUND: 50,
+    IMMEDIATE_FOREGROUND: 100
+};
 
-/**
- * Marks a class as being able to be renderable in a GameCore instance
- */
-export function Renderable(target) {
-    target.prototype[Symbols.renderable] = true;
-}
+export const Decorators = {
+    /**
+     * Marks a class as being able to be updated in a GameCore instance
+     */
+    Updatable: function(target) {
+        target.prototype[Symbols.updatable] = true;
+    },
+    isUpdatable: function(target) {
+        return !!target[Symbols.updatable];
+    },
 
-/**
- * Marks a class as being able to be collided against in a GameCore instance.
- * Needs to be called with a valid bounding group identifier, identifying which
- * bounding group this class should belong to. 
- */
-export function Boundable(boundableGroup) {
-    return function(target) {
-        target.prototype[Symbols.boundable] = boundableGroup;
+    /**
+     * Marks a class as being able to be renderable in a GameCore instance
+     */
+    Renderable: function(target) {
+        target.prototype[Symbols.renderable] = true;
+    },
+    isRenderable: function(target) {
+        return !!target[Symbols.renderable];
+    },
+
+
+    /**
+     * Marks a class as being able to be collided against in a GameCore instance.
+     * Needs to be called with a valid bounding group identifier, identifying which
+     * bounding group this class should belong to. 
+     */
+    Boundable: function(boundableGroup) {
+        return function(target) {
+            target.prototype[Symbols.boundable] = boundableGroup;
+        }
+    },
+    isBoundable: function(target) {
+        return !!target[Symbols.boundable];
+    },
+    getBoundingGroup: function(target) {
+        return target[Symbols.boundable];
     }
 }

@@ -6,7 +6,8 @@ import {BoundingGroupNames} from './core'
 
 import BoundingBox from '../lib/BoundingBox'
 
-import {Updatable, Boundable, Renderable} from './decorators/EntityDescriptions'
+import {Decorators as EntityDecorators} from './decorators/EntityDescriptions'
+const {Updatable, Boundable, Renderable} = EntityDecorators;
 
 /**
  * Represents an obstacle in the game world which the player has to avoid or the game ends.
@@ -47,7 +48,7 @@ export class Obstacle extends Entity {
         )
     }
 
-    render(context, globalTime, applyScreenTransform, applyCameraTransform) {
+    render(context, globalTime, {applyScreenTransform, applyCameraTransform}) {
         applyCameraTransform(context);
 
         applyScreenTransform(context, this.position, this.size);
@@ -67,9 +68,12 @@ export class Obstacle extends Entity {
  */
 export function *loadObstaclesFromJson(worldInfo, JsonList, offsetX) {
     for (let obstacleDef of JsonList) {
-        yield new Obstacle(obstacleDef.size, new vec2({
-            x: obstacleDef.position.x + offsetX,
-            y: obstacleDef.position.y
-        }));
+        yield new Obstacle(
+            obstacleDef.size, 
+            new vec2({
+                x: obstacleDef.position.x + offsetX,
+                y: obstacleDef.position.y
+            })
+        );
     }
 }

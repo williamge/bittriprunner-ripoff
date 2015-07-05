@@ -1,0 +1,29 @@
+.game-game_over_screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    background-color: hsla(0, 0%, 15%, 0.4);
+}
+
+.game-game_over_screen-button {
+    background-color: hsla(0, 0%, 15%, 0.4);
+    border: 1px solid black;
+    font-size: 1em;
+
+    padding: 0.5em 2em;
+    margin: 1.5em;
+}
+
+.game-blurred {
+    -webkit-filter: blur(2px);
+    filter: blur(2px);
+}
+
+[name="instructions"] p {
+    display: inline-block;
+    max-width: 600px;
+    text-align: center;
+}

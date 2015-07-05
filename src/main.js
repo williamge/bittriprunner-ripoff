@@ -1,7 +1,12 @@
-import * as __globalcss from './global.css'
-import * as __canvascss from './canvas.css'
+import * as __globalcss from './global.css';
+import * as __canvascss from './canvas.css';
+import * as __gamecss from './game.css';
+
+import {Vector2d as vec2} from './lib/Vector2d';
 
 import Player from './game/Player'
+import Background from './game/Background';
+import WeirdBackground from './game/WeirdBackground';
 
 import {Obstacle, loadObstaclesFromJson} from './game/Obstacle'
 
@@ -11,15 +16,17 @@ import Camera from './game/Camera'
 import KeyState from './game/KeyState'
 import Input from './Input'
 
-import level1 from './data/level1'
-import level2 from './data/level2'
+import level1 from './data/level1';
+import level2 from './data/level2';
+import level3 from './data/level3';
+import level4 from './data/level4';
+import level5 from './data/level5';
 
 export default function factory(cvars) {
 
-
+    let mainHandle = document.getElementById('main-handle');
 
     let createMainCanvas = function() {
-        let mainHandle = document.getElementById('main-handle')
 
         let mainCanvas = document.createElement('canvas')
         mainCanvas.classList.add('bordered-canvas');
@@ -46,7 +53,10 @@ export default function factory(cvars) {
 
         const stages = [
             level1,
-            level2
+            level2,
+            level3,
+            level4,
+            level5
         ];
 
         function *getStage() {
@@ -105,7 +115,9 @@ export default function factory(cvars) {
         };
     };
 
-    function play(cvars) {
+    function play({
+        onGameOver
+    }) {
 
         let {
             mainCanvas,
@@ -128,10 +140,10 @@ export default function factory(cvars) {
             class GameCamera extends Camera {
                 constructor() {
                     super();
-                    this.position = {
+                    this.position = new vec2({
                         x: 0,
                         y: 0
-                    };
+                    });
 
                     this.blockPosition = {
                         left: START_TO_OBSTACLES,
@@ -162,7 +174,12 @@ export default function factory(cvars) {
 
         let game = new GameCore(mainContext, camera, gameLogic);
 
+        let background = new Background(game.worldInfo);
+        let weirdBackground = new WeirdBackground(game.worldInfo); 
+
         game.addEntity(player);
+        game.addEntity(background);
+        game.addEntity(weirdBackground);
 
         let {loadObstacles, removeOldObstacles} = obstacleHelpers(game);
 
@@ -175,7 +192,10 @@ export default function factory(cvars) {
         gameLogic.events.playerHitBlock.subscribe((data) => {
             loop.pauseLoop();
             gameLogic.state.gameRunning = false;
-            alert(`Game Over! Score: ${player.position.x.toFixed(0)}`);
+
+            let score = player.position.x.toFixed(0);
+
+            (onGameOver || function(){})(score);
         })
 
         gameLogic.events.shouldLoadNextZone.subscribe((data) => {
@@ -186,7 +206,38 @@ export default function factory(cvars) {
         //Here we go! Start the game loop and start playing
         gameLogic.state.gameRunning = true;
         loop.startLoop();
+    }
 
+    function playGame({
+        onRestart
+    }) {
+        play({
+            onGameOver: (score) => {
+                let gameOverScreen = document.createElement('div');
+                gameOverScreen.classList.add('game-game_over_screen');
+
+                let gameOverText = document.createElement('h2');
+                gameOverText.textContent = 'Game Over'
+
+                let scoreText = document.createElement('p');
+                scoreText.textContent = `Score: ${score}`;
+
+                let restartButton = document.createElement('button');
+                restartButton.textContent = 'Restart';
+                restartButton.classList.add('game-game_over_screen-button');
+                restartButton.addEventListener('click', onRestart);
+
+                gameOverScreen.appendChild(gameOverText);
+                gameOverScreen.appendChild(scoreText);
+                gameOverScreen.appendChild(restartButton);   
+
+                [].slice.call(mainHandle.children).forEach((child) => {
+                    child.classList.add('game-blurred');
+                });
+
+                mainHandle.appendChild(gameOverScreen);
+            }
+        })
     }
 
     function debugStage(stage) {
@@ -219,7 +270,7 @@ export default function factory(cvars) {
     }
 
     return {
-        play,
+        playGame,
         debugStage
     };
 }
