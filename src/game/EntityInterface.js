@@ -62,3 +62,9 @@ export default class Entity {
         )
     }
 }
+
+/**
+ * Note: A bigger number is better, the bigger number appears higher on the render list and will be rendered
+ * on top of everything else. This may run contrary to other engines or frameworks.
+ */
+Entity.prototype.zIndex = 0;

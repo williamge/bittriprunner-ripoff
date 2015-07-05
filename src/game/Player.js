@@ -6,7 +6,8 @@ import {Vector2d as vec2, Size2d as size2} from '../lib/Vector2d'
 
 import BoundingBox from '../lib/BoundingBox'
 
-import {Updatable, Boundable, Renderable} from './decorators/EntityDescriptions'
+import {Decorators as EntityDecorators, ZLevels} from './decorators/EntityDescriptions'
+const {Updatable, Boundable, Renderable} = EntityDecorators;
 
 /**
  * Represents a player in the game world which the user controls.
@@ -44,7 +45,9 @@ export default class Player extends Entity {
         this.keyState = keyState;
 
         this.personalCanvas = document.createElement('canvas');
-        this.oldPosition = this.position;
+        this.oldCameraPosition = 0;
+
+        this.zIndex = ZLevels.IMMEDIATE_FOREGROUND;
     }
 
     getBoundingBox() {
@@ -79,6 +82,7 @@ export default class Player extends Entity {
 
         if (!this._checkCollisions(BoundingMap, gameLogic)) {
             if (this.position.y <= 0) {
+                this.position.y = 0;
                 this.velocity.y = 0;
 
                 if (this.keyState.get('up_arrow')) {
@@ -88,14 +92,12 @@ export default class Player extends Entity {
                 this.velocity.y += this.acceleration.y * (delta/1000);
             }
 
-            this.oldPosition = this.position.copy();
-
             this.position.x += this.velocity.x * (delta/1000);
             this.position.y += this.velocity.y * (delta/1000);
         }
     }
 
-    render(context, globalTime, applyScreenTransform, applyCameraTransform) {
+    render(context, globalTime, {applyScreenTransform, applyCameraTransform}, camera) {
 
         let mixingCanvas = document.createElement('canvas');
         mixingCanvas.width = context.canvas.width;
@@ -115,7 +117,7 @@ export default class Player extends Entity {
          */
         mixingContext.save();
 
-        applyScreenTransform(mixingContext, new vec2({x: -(this.position.x - this.oldPosition.x), y: 0}), new size2({width: mixingCanvas.width, height: mixingCanvas.height} ));
+        applyScreenTransform(mixingContext, new vec2({x: camera.position.x - this.oldCameraPosition.x, y: 0}), new size2({width: mixingCanvas.width, height: mixingCanvas.height} ));
         mixingContext.globalAlpha = 0.93;
         mixingContext.drawImage(this.personalCanvas, 0, 0);   
         
@@ -134,6 +136,8 @@ export default class Player extends Entity {
         let hue = (Math.sin((globalTime / 6000) * Math.PI) + 1) * 360
 
         mixingContext.fillStyle = `hsl(${hue}, 30%, 70%)`
+
+        mixingContext.rotate(- (this.position.y * 0.0015) );
         mixingContext.fillRect(0, 0, this.size.width, this.size.height); 
 
         mixingContext.restore();    
@@ -147,5 +151,6 @@ export default class Player extends Entity {
          */
         this.personalCanvas = mixingCanvas;
 
+        this.oldCameraPosition = camera.position.copy();
     }
 }
